@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getActiveSession, setActiveSession, clearActiveSession } from '../storage/activeSession'
 import { addSession } from '../storage/sessions'
 import { getElapsedMs, msToMinutes, formatElapsed } from '../game/timer'
+import { playSound } from '../playSound'
 
 function Timer({ subjects, onSessionSaved }) {
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
@@ -37,6 +38,7 @@ function Timer({ subjects, onSessionSaved }) {
     setStartTime(now)
     setElapsedMs(0)
     setActiveSession({ subjectId: selectedSubjectId, startTime: now })
+    playSound('/sounds/start.mp3')
   }
 
   function handleStop() {
@@ -52,6 +54,7 @@ function Timer({ subjects, onSessionSaved }) {
     setStartTime(null)
     setElapsedMs(0)
     onSessionSaved()
+    playSound('/sounds/stop.mp3')
   }
 
   const running = startTime !== null
