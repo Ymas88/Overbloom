@@ -6,6 +6,7 @@ import SubjectForm from './components/SubjectForm'
 import SubjectList from './components/SubjectList'
 import Timer from './components/Timer'
 import SessionList from './components/SessionList'
+import DevSessionForm from './components/DevSessionForm'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -39,6 +40,10 @@ function App() {
 
       <h2>Past sessions</h2>
       <SessionList sessions={sessions} subjects={subjects} />
+
+      <h2>Debug: add test session</h2>
+      <p>For testing growth stages without waiting real days.</p>
+      <DevSessionForm subjects={subjects} onSessionAdded={handleSessionSaved} />
     </>
   )
 }
