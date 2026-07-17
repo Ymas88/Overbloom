@@ -64,6 +64,7 @@ button:focus-visible {
 }
 
 .plot {
+  position: relative;
   height: 100px;
   background-color: #3a5a40;
   display: flex;
@@ -76,8 +77,19 @@ button:focus-visible {
   box-sizing: border-box;
 }
 
-.plot-emoji {
-  font-size: 1.8em;
+.plot-sprite {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.plot-wilt-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  image-rendering: pixelated;
 }
 
 .plot-label {

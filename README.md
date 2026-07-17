@@ -11,3 +11,7 @@ Down the line, overbloom will come with a companion Chrome extension that blocks
 ## Current status
 
 This is very early — V1 stores everything locally in your browser (`localStorage`), with no user accounts and no backend server. The project is still being built one small piece at a time.
+
+## Credits
+
+Farm plot sprites are from [Kenney](https://kenney.nl) ("Tiny Farm" pack), used under [CC0](http://creativecommons.org/publicdomain/zero/1.0/).
