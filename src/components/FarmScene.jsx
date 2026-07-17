@@ -23,11 +23,14 @@ function FarmScene({ subjects, sessions }) {
 
         return (
           <div key={subject.id} className="plot">
-            <img
-              src={STAGE_SPRITES[stage]}
-              alt={`growth stage ${stage}`}
-              className="plot-sprite"
-            />
+            {/* key={stage} remounts the wrapper on stage change, replaying the pop-in animation */}
+            <div className="plot-sprite-wrap" key={stage}>
+              <img
+                src={STAGE_SPRITES[stage]}
+                alt={`growth stage ${stage}`}
+                className="plot-sprite"
+              />
+            </div>
             {isWilting && (
               <img
                 src="/sprites/plots/wilted.png"

@@ -77,10 +77,15 @@ button:focus-visible {
   box-sizing: border-box;
 }
 
+.plot-sprite-wrap {
+  animation: plot-pop 0.4s ease-out;
+}
+
 .plot-sprite {
   width: 48px;
   height: 48px;
   image-rendering: pixelated;
+  animation: plot-sway 3s ease-in-out infinite;
 }
 
 .plot-wilt-badge {
@@ -90,6 +95,36 @@ button:focus-visible {
   width: 20px;
   height: 20px;
   image-rendering: pixelated;
+  animation: plot-pop 0.4s ease-out;
+}
+
+@keyframes plot-pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes plot-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plot-sprite-wrap,
+  .plot-sprite,
+  .plot-wilt-badge {
+    animation: none;
+  }
 }
 
 .plot-label {
