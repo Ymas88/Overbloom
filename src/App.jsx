@@ -28,7 +28,7 @@ function App() {
     <>
       <h1>overbloom</h1>
 
-      <FarmScene subjects={subjects} />
+      <FarmScene subjects={subjects} sessions={sessions} />
 
       <h2>Timer</h2>
       <Timer subjects={subjects} onSessionSaved={handleSessionSaved} />
