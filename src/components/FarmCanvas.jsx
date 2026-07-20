@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { drawScene } from '../canvas/scene'
 import { drawSprite, SCENE_WIDTH, SCENE_HEIGHT } from '../canvas/sprites'
 import { onTilesetReady } from '../canvas/tileset'
+import { onTownTilesetReady } from '../canvas/townTileset'
 import { onGrowthSpritesReady } from '../canvas/growthSprites'
 
 // Movement isn't wired up yet — the character just stands in the field so
@@ -24,6 +25,7 @@ function FarmCanvas({ subjects, sessions }) {
 
     render()
     onTilesetReady(render)
+    onTownTilesetReady(render)
     onGrowthSpritesReady(render)
   }, [subjects, sessions])
 

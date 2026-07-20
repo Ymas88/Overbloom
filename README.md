@@ -14,4 +14,4 @@ This is very early — V1 stores everything locally in your browser (`localStora
 
 ## Credits
 
-Farm plot sprites and sound effects are from [Kenney](https://kenney.nl) ("Tiny Farm" and "Interface Sounds" packs), used under [CC0](http://creativecommons.org/publicdomain/zero/1.0/).
+Farm scene art and sound effects are from [Kenney](https://kenney.nl) ("Tiny Farm", "Tiny Town", and "Interface Sounds" packs), used under [CC0](http://creativecommons.org/publicdomain/zero/1.0/).

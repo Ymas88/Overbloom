@@ -1,5 +1,6 @@
 import { palette } from './palette'
 import { drawTile, drawTileBlock, TILE_INDEX } from './tileset'
+import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
 import { drawPlot } from './growthSprites'
 
 // Virtual (internal) canvas resolution: a top-down field, 20x14 tiles.
@@ -27,28 +28,20 @@ function hash(tx, ty) {
   return s - Math.floor(s)
 }
 
-// Grass field with mottled light/mid/dark patches plus scattered tufts and
-// tiny flowers, so the ground reads as textured rather than a flat fill.
+// Grass field built from the Tiny Town tileset: mostly plain grass, with
+// occasional subtly-textured or flowering tiles scattered in (deterministic,
+// not random, so it doesn't shimmer between renders).
 function drawGround(ctx) {
   for (let ty = 0; ty < TILES_Y; ty++) {
     for (let tx = 0; tx < TILES_X; tx++) {
       const n = hash(tx, ty)
-      const shade = n < 0.3 ? palette.grass.dark : n < 0.72 ? palette.grass.mid : palette.grass.light
-      px(ctx, tx * TILE, ty * TILE, TILE, TILE, shade)
-    }
-  }
-
-  for (let ty = 0; ty < TILES_Y; ty++) {
-    for (let tx = 0; tx < TILES_X; tx++) {
-      const n = hash(tx * 3.7 + 1, ty * 5.3 + 2)
-      const px0 = tx * TILE + 4 + Math.floor(n * 8)
-      const py0 = ty * TILE + 4 + Math.floor(hash(tx, ty * 1.9) * 8)
-      if (n > 0.9) {
-        px(ctx, px0, py0, 2, 2, palette.grass.outline)
-      } else if (n < 0.04) {
-        px(ctx, px0, py0, 2, 2, palette.flower.petal)
-        px(ctx, px0, py0, 1, 1, palette.flower.center)
-      }
+      const index =
+        n > 0.94
+          ? TOWN_TILE_INDEX.GRASS_FLOWERS
+          : n > 0.75
+            ? TOWN_TILE_INDEX.GRASS_TEXTURED
+            : TOWN_TILE_INDEX.GRASS
+      drawTownTile(ctx, index, tx * TILE, ty * TILE)
     }
   }
 }
