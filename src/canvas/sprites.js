@@ -101,15 +101,24 @@ function drawRockyOutcrop(ctx, x, y) {
 }
 
 // Top-down character from the Tiny Farm tileset. x,y = feet position.
-// The pack only has one static pose, so `facing` is accepted but unused
-// until a full character sprite sheet is wired up for real movement.
-function drawPlayer(ctx, x, y) {
+// The pack only has one static pose (facing the camera), so left/right
+// movement mirrors it horizontally; up/down movement keeps it as-is since
+// there's no back-facing pose to swap to.
+function drawPlayer(ctx, x, y, { facing = 'right' } = {}) {
   ctx.fillStyle = 'rgba(0,0,0,0.25)'
   ctx.beginPath()
   ctx.ellipse(Math.round(x), Math.round(y) - 1, 5, 2, 0, 0, Math.PI * 2)
   ctx.fill()
 
-  drawTile(ctx, TILE_INDEX.CHARACTER, x - TILE / 2, y - TILE)
+  if (facing === 'left') {
+    ctx.save()
+    ctx.translate(Math.round(x), 0)
+    ctx.scale(-1, 1)
+    drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, y - TILE)
+    ctx.restore()
+  } else {
+    drawTile(ctx, TILE_INDEX.CHARACTER, x - TILE / 2, y - TILE)
+  }
 }
 
 // Small bouncing "press E" prompt shown above an interactable when the
@@ -153,7 +162,7 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
     case 'fenceLine':
       return drawFenceLine(ctx, x, y, opts.length ?? TILE * 4)
     case 'player':
-      return drawPlayer(ctx, x, y)
+      return drawPlayer(ctx, x, y, opts)
     case 'interactPrompt':
       return drawInteractPrompt(ctx, x, y, opts.bob ?? 0)
     default:

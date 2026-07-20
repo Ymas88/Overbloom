@@ -9,6 +9,8 @@ const FARMHOUSE_CENTER = { x: FARMHOUSE_X + FARMHOUSE_W / 2, y: FARMHOUSE_Y + FA
 
 const ROCK_X = SCENE_WIDTH - TILE * 4.5
 const ROCK_Y = TILE * 1
+const ROCK_W = 56
+const ROCK_H = 48
 const ROCK_CENTER = { x: ROCK_X + 28, y: ROCK_Y + 24 }
 
 const PLOT_SIZE = TILE * 2
@@ -35,11 +37,19 @@ export function computeLayout(plotCount) {
   const rowWidth = Math.min(plotCount, PLOTS_PER_ROW) * (PLOT_SIZE + PLOT_GAP) - PLOT_GAP
   const fence = plotCount > 0 ? { x: PLOTS_ORIGIN_X - 6, y: PLOTS_ORIGIN_Y - 4, length: rowWidth + 12 } : null
 
+  // Full building footprints (not just the walkable wall portion) so the
+  // player sprite — always drawn last, on top — never overlaps the roof art.
+  const solids = [
+    { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H },
+    { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H },
+  ]
+
   return {
-    farmhouse: { x: FARMHOUSE_X, y: FARMHOUSE_Y, center: FARMHOUSE_CENTER },
-    rock: { x: ROCK_X, y: ROCK_Y, center: ROCK_CENTER },
+    farmhouse: { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H, center: FARMHOUSE_CENTER },
+    rock: { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H, center: ROCK_CENTER },
     plots,
     fence,
+    solids,
     bushes: [
       { x: FARMHOUSE_X - 4, y: FARMHOUSE_Y + FARMHOUSE_H - 6 },
       { x: FARMHOUSE_X + FARMHOUSE_W + 4, y: FARMHOUSE_Y + FARMHOUSE_H - 6, berry: true },
