@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react'
 import { getSubjects, addSubject } from './storage/subjects'
 import { getSessions } from './storage/sessions'
-import FarmScene from './components/FarmScene'
-import SubjectForm from './components/SubjectForm'
-import SubjectList from './components/SubjectList'
-import Timer from './components/Timer'
-import SessionList from './components/SessionList'
-import DevSessionForm from './components/DevSessionForm'
+import FarmCanvas from './components/FarmCanvas'
+import FarmhousePanel from './components/FarmhousePanel'
+import PlotPanel from './components/PlotPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
   const [sessions, setSessions] = useState([])
+  const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId}
 
   useEffect(() => {
     setSubjects(getSubjects())
     setSessions(getSessions())
   }, [])
+
+  useEffect(() => {
+    if (!interaction) return
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') setInteraction(null)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [interaction])
 
   function handleAddSubject(name) {
     setSubjects(addSubject(name))
@@ -25,26 +32,36 @@ function App() {
     setSessions(getSessions())
   }
 
+  function closePanel() {
+    setInteraction(null)
+  }
+
+  const activePlotSubject =
+    interaction?.type === 'plot' ? subjects.find((s) => s.id === interaction.subjectId) : null
+
   return (
-    <>
-      <h1>overbloom</h1>
+    <div className="game-screen">
+      <FarmCanvas
+        subjects={subjects}
+        sessions={sessions}
+        paused={interaction !== null}
+        onInteract={setInteraction}
+      />
 
-      <FarmScene subjects={subjects} sessions={sessions} />
+      {interaction?.type === 'farmhouse' && (
+        <FarmhousePanel
+          subjects={subjects}
+          sessions={sessions}
+          onAddSubject={handleAddSubject}
+          onSessionSaved={handleSessionSaved}
+          onClose={closePanel}
+        />
+      )}
 
-      <h2>Timer</h2>
-      <Timer subjects={subjects} onSessionSaved={handleSessionSaved} />
-
-      <h2>Subjects</h2>
-      <SubjectForm onAdd={handleAddSubject} />
-      <SubjectList subjects={subjects} />
-
-      <h2>Past sessions</h2>
-      <SessionList sessions={sessions} subjects={subjects} />
-
-      <h2>Debug: add test session</h2>
-      <p>For testing growth stages without waiting real days.</p>
-      <DevSessionForm subjects={subjects} onSessionAdded={handleSessionSaved} />
-    </>
+      {activePlotSubject && (
+        <PlotPanel subject={activePlotSubject} onSessionSaved={handleSessionSaved} onClose={closePanel} />
+      )}
+    </div>
   )
 }
 

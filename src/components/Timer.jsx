@@ -4,20 +4,19 @@ import { addSession } from '../storage/sessions'
 import { getElapsedMs, msToMinutes, formatElapsed } from '../game/timer'
 import { playSound } from '../playSound'
 
-function Timer({ subjects, onSessionSaved }) {
-  const [selectedSubjectId, setSelectedSubjectId] = useState('')
+function Timer({ subjectId, onSessionSaved }) {
   const [startTime, setStartTime] = useState(null)
   const [elapsedMs, setElapsedMs] = useState(0)
 
-  // On mount, resume an unfinished session left over from before a refresh.
+  // On mount, resume an unfinished session left over from before a refresh
+  // — but only if it belongs to this plot's subject.
   useEffect(() => {
     const active = getActiveSession()
-    if (active) {
-      setSelectedSubjectId(active.subjectId)
+    if (active && active.subjectId === subjectId) {
       setStartTime(active.startTime)
       setElapsedMs(getElapsedMs(active.startTime))
     }
-  }, [])
+  }, [subjectId])
 
   // While running, recompute elapsed time from the stored start timestamp
   // every second. The interval only drives the display, never the source
@@ -33,11 +32,10 @@ function Timer({ subjects, onSessionSaved }) {
   }, [startTime])
 
   function handleStart() {
-    if (!selectedSubjectId) return
     const now = Date.now()
     setStartTime(now)
     setElapsedMs(0)
-    setActiveSession({ subjectId: selectedSubjectId, startTime: now })
+    setActiveSession({ subjectId, startTime: now })
     playSound('/sounds/start.mp3')
   }
 
@@ -45,7 +43,7 @@ function Timer({ subjects, onSessionSaved }) {
     const endTime = Date.now()
     addSession({
       id: crypto.randomUUID(),
-      subjectId: selectedSubjectId,
+      subjectId,
       startTime,
       endTime,
       durationMinutes: msToMinutes(endTime - startTime),
@@ -61,27 +59,12 @@ function Timer({ subjects, onSessionSaved }) {
 
   return (
     <div>
-      <select
-        value={selectedSubjectId}
-        onChange={(e) => setSelectedSubjectId(e.target.value)}
-        disabled={running}
-      >
-        <option value="">Select a subject</option>
-        {subjects.map((subject) => (
-          <option key={subject.id} value={subject.id}>
-            {subject.name}
-          </option>
-        ))}
-      </select>
-
-      <p>{formatElapsed(elapsedMs)}</p>
+      <p className="timer-display">{formatElapsed(elapsedMs)}</p>
 
       {running ? (
         <button onClick={handleStop}>Stop</button>
       ) : (
-        <button onClick={handleStart} disabled={!selectedSubjectId}>
-          Start
-        </button>
+        <button onClick={handleStart}>Start</button>
       )}
     </div>
   )
