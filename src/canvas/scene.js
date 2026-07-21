@@ -20,11 +20,11 @@ const ROCK_W = 56
 const ROCK_H = 48
 const ROCK_CENTER = { x: ROCK_X + 28, y: ROCK_Y + 24 }
 
-const PLOT_SIZE = TILE * 2
+const PLOT_SIZE = 56
 const PLOT_GAP = 10
 const PLOTS_ORIGIN_X = TILE * 6
 const PLOTS_ORIGIN_Y = TILE * 3
-const PLOTS_PER_ROW = 5
+const PLOTS_PER_ROW = 3
 
 const INTERACT_RANGE = 26
 

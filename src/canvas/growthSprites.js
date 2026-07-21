@@ -32,24 +32,19 @@ export function onGrowthSpritesReady(callback) {
   else readyListeners.push(callback)
 }
 
-export function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false } = {}) {
-  const base = images[stage] ?? images[0]
-  if (base.complete) {
-    ctx.drawImage(base, 0, 0, 16, 16, Math.round(x), Math.round(y), size, size)
+// Draws one growth-stage icon (soil or a crop, depending on stage) in a
+// size x size box at (x, y).
+export function drawGrowthIcon(ctx, stage, x, y, size) {
+  const img = images[stage] ?? images[0]
+  if (img.complete) {
+    ctx.drawImage(img, 0, 0, 16, 16, Math.round(x), Math.round(y), size, size)
   }
+}
 
-  if (isWilting && images.wilted.complete) {
-    const badgeSize = size * 0.5
-    ctx.drawImage(
-      images.wilted,
-      0,
-      0,
-      16,
-      16,
-      Math.round(x + size - badgeSize),
-      Math.round(y),
-      badgeSize,
-      badgeSize
-    )
+// Draws the wilting badge in a size x size box at (x, y).
+export function drawWiltedIcon(ctx, x, y, size) {
+  const img = images.wilted
+  if (img.complete) {
+    ctx.drawImage(img, 0, 0, 16, 16, Math.round(x), Math.round(y), size, size)
   }
 }

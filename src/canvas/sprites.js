@@ -1,7 +1,7 @@
 import { palette } from './palette'
 import { drawTile, drawTileBlock, TILE_INDEX } from './tileset'
 import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
-import { drawPlot } from './growthSprites'
+import { drawGrowthIcon, drawWiltedIcon } from './growthSprites'
 
 // Virtual (internal) canvas resolution: a 20x14-tile window onto the world,
 // scaled up with CSS to fill its container (image smoothing disabled), so
@@ -111,6 +111,39 @@ function drawRockyOutcrop(ctx, x, y) {
   const mouthH = h - 16
   px(ctx, x + (w - mouthW) / 2, y + h - mouthH - 6, mouthW, mouthH, palette.mine.dark)
   px(ctx, x + (w - mouthW) / 2 + 3, y + h - mouthH - 3, mouthW - 6, mouthH - 6, palette.mine.mid)
+}
+
+// A subject's plot: a fenced-in growing bed with a 3x3 grid of crop icons
+// (all sharing the same growth stage), instead of a single big sprite —
+// reads as a small planted field rather than one giant flower.
+const PLOT_GRID = 3
+const PLOT_BORDER = 4
+const PLOT_ICON_GAP = 3
+
+function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false } = {}) {
+  const icon = (size - PLOT_BORDER * 2 - PLOT_ICON_GAP * (PLOT_GRID - 1)) / PLOT_GRID
+
+  px(ctx, x, y, size, size, palette.wood.outline)
+  px(ctx, x + 2, y + 2, size - 4, size - 4, palette.wood.dark)
+
+  // Corner posts, for a "fenced pen" feel.
+  px(ctx, x, y, 3, 3, palette.wood.light)
+  px(ctx, x + size - 3, y, 3, 3, palette.wood.light)
+  px(ctx, x, y + size - 3, 3, 3, palette.wood.light)
+  px(ctx, x + size - 3, y + size - 3, 3, 3, palette.wood.light)
+
+  for (let row = 0; row < PLOT_GRID; row++) {
+    for (let col = 0; col < PLOT_GRID; col++) {
+      const ix = x + PLOT_BORDER + col * (icon + PLOT_ICON_GAP)
+      const iy = y + PLOT_BORDER + row * (icon + PLOT_ICON_GAP)
+      drawGrowthIcon(ctx, stage, ix, iy, icon)
+    }
+  }
+
+  if (isWilting) {
+    const badge = size * 0.32
+    drawWiltedIcon(ctx, x + size - badge, y - badge * 0.4, badge)
+  }
 }
 
 // Top-down character from the Tiny Farm tileset. x,y = feet position.
