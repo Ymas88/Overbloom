@@ -78,28 +78,114 @@ button:focus-visible {
   width: min(90vw, 420px);
   max-height: 85vh;
   overflow-y: auto;
-  background: rgba(24, 20, 16, 0.95);
-  border: 2px solid #4e3a22;
-  border-radius: 8px;
-  padding: 1.5rem;
-  color: rgba(255, 255, 255, 0.87);
+  box-sizing: border-box;
+  background: #e4bc7d;
+  border: 6px solid #7a4b26;
+  outline: 3px solid #c9975b;
+  outline-offset: -12px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  color: #4a2e16;
+  font-family: 'Courier New', ui-monospace, monospace;
 }
 
 .game-panel h2 {
-  margin-top: 0;
+  margin: 0 0 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px solid #a97c46;
+  font-size: 1.4em;
+  letter-spacing: 0.03em;
+  color: #3b2411;
+}
+
+.game-panel h3 {
+  margin: 1.4rem 0 0.5rem;
+  color: #5c3a1c;
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+}
+
+.game-panel p {
+  color: #5c3a1c;
+}
+
+.game-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.game-panel li {
+  padding: 0.35em 0.6em;
+  background: #f2d6a5;
+  border: 2px solid #a97c46;
+  border-radius: 3px;
+  margin-bottom: 0.4em;
+}
+
+.game-panel form {
+  display: flex;
+  gap: 0.5em;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.game-panel input,
+.game-panel select {
+  font-family: inherit;
+  font-size: 0.95em;
+  color: #3b2411;
+  background: #f6e3bd;
+  border: 2px solid #7a4b26;
+  border-radius: 3px;
+  padding: 0.45em 0.6em;
+  flex: 1;
+  min-width: 88px;
+}
+
+.game-panel input::placeholder {
+  color: #8a6a44;
+}
+
+.game-panel button {
+  font-family: inherit;
+  font-weight: 700;
+  color: #f6e3bd;
+  background: #8a5a30;
+  border: 2px solid #4a2e16;
+  border-bottom-width: 4px;
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+}
+
+.game-panel button:hover {
+  background: #9c672f;
+}
+
+.game-panel button:active {
+  border-bottom-width: 2px;
+  margin-top: 2px;
 }
 
 .panel-close {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  padding: 0.2em 0.6em;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 1.8em;
+  height: 1.8em;
+  padding: 0;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .timer-display {
-  font-size: 2em;
-  font-weight: 500;
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #3b2411;
+  text-align: center;
+  margin: 1rem 0;
 }
 
 @media (prefers-color-scheme: light) {
