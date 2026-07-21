@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { drawScene, computeLayout, getInteractionTargets, findNearbyTarget } from '../canvas/scene'
-import { drawSprite, SCENE_WIDTH, SCENE_HEIGHT } from '../canvas/sprites'
+import { drawSprite, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, WORLD_WIDTH, WORLD_HEIGHT } from '../canvas/sprites'
 
 const PLAYER_SPEED = 90 // virtual px per second
 const MARGIN = 8
@@ -34,9 +34,18 @@ function collides(x, y, solids) {
   return solids.some((solid) => rectsOverlap(box, solid))
 }
 
+// Camera top-left corner, in world coordinates, centered on the player and
+// clamped so the view never scrolls past the world's edges.
+function cameraFor(player) {
+  return {
+    x: Math.max(0, Math.min(WORLD_WIDTH - VIEWPORT_WIDTH, player.x - VIEWPORT_WIDTH / 2)),
+    y: Math.max(0, Math.min(WORLD_HEIGHT - VIEWPORT_HEIGHT, player.y - VIEWPORT_HEIGHT / 2)),
+  }
+}
+
 function FarmCanvas({ subjects, sessions, paused, onInteract }) {
   const canvasRef = useRef(null)
-  const playerRef = useRef({ x: SCENE_WIDTH / 2, y: SCENE_HEIGHT - 32, facing: 'right' })
+  const playerRef = useRef({ x: VIEWPORT_WIDTH / 2, y: VIEWPORT_HEIGHT - 32, facing: 'right' })
   const keysRef = useRef(new Set())
   const pausedRef = useRef(paused)
   const onInteractRef = useRef(onInteract)
@@ -108,16 +117,21 @@ function FarmCanvas({ subjects, sessions, paused, onInteract }) {
 
           const nx = player.x + dx * PLAYER_SPEED * dt
           if (!collides(nx, player.y, layout.solids)) {
-            player.x = Math.max(MARGIN, Math.min(SCENE_WIDTH - MARGIN, nx))
+            player.x = Math.max(MARGIN, Math.min(WORLD_WIDTH - MARGIN, nx))
           }
           const ny = player.y + dy * PLAYER_SPEED * dt
           if (!collides(player.x, ny, layout.solids)) {
-            player.y = Math.max(MARGIN, Math.min(SCENE_HEIGHT - MARGIN, ny))
+            player.y = Math.max(MARGIN, Math.min(WORLD_HEIGHT - MARGIN, ny))
           }
         }
       }
 
-      drawScene(ctx, { subjects, sessions })
+      const camera = cameraFor(player)
+
+      ctx.save()
+      ctx.translate(-Math.round(camera.x), -Math.round(camera.y))
+
+      drawScene(ctx, { subjects, sessions, camera })
       drawSprite(ctx, 'player', player.x, player.y, 0, { facing: player.facing })
 
       const nearby = pausedRef.current ? null : findNearbyTarget(targets, player.x, player.y)
@@ -125,6 +139,8 @@ function FarmCanvas({ subjects, sessions, paused, onInteract }) {
         const bob = Math.sin(now / 200) * 1.5
         drawSprite(ctx, 'interactPrompt', nearby.x, nearby.y - 24, 0, { bob })
       }
+
+      ctx.restore()
 
       animationFrameId = requestAnimationFrame(frame)
     }
@@ -136,8 +152,8 @@ function FarmCanvas({ subjects, sessions, paused, onInteract }) {
   return (
     <canvas
       ref={canvasRef}
-      width={SCENE_WIDTH}
-      height={SCENE_HEIGHT}
+      width={VIEWPORT_WIDTH}
+      height={VIEWPORT_HEIGHT}
       className="farm-canvas"
     />
   )

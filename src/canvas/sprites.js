@@ -3,15 +3,21 @@ import { drawTile, drawTileBlock, TILE_INDEX } from './tileset'
 import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
 import { drawPlot } from './growthSprites'
 
-// Virtual (internal) canvas resolution: a top-down field, 20x14 tiles.
-// The <canvas> element is scaled up with CSS to fill its container, with
-// image smoothing disabled, so every virtual pixel drawn here becomes a
-// crisp, chunky block on screen.
+// Virtual (internal) canvas resolution: a 20x14-tile window onto the world,
+// scaled up with CSS to fill its container (image smoothing disabled), so
+// every virtual pixel drawn here becomes a crisp, chunky block on screen.
 export const TILE = 16
-export const TILES_X = 20
-export const TILES_Y = 14
-export const SCENE_WIDTH = TILE * TILES_X
-export const SCENE_HEIGHT = TILE * TILES_Y
+export const VIEWPORT_TILES_X = 20
+export const VIEWPORT_TILES_Y = 14
+export const VIEWPORT_WIDTH = TILE * VIEWPORT_TILES_X
+export const VIEWPORT_HEIGHT = TILE * VIEWPORT_TILES_Y
+
+// The full walkable world is bigger than the viewport — the camera scrolls
+// to follow the player, so most of it is off-screen at any given moment.
+export const WORLD_TILES_X = 34
+export const WORLD_TILES_Y = 22
+export const WORLD_WIDTH = TILE * WORLD_TILES_X
+export const WORLD_HEIGHT = TILE * WORLD_TILES_Y
 
 // Crisp pixel rect: rounds to whole virtual pixels so edges never
 // anti-alias, regardless of how the canvas is scaled by CSS.
@@ -28,12 +34,19 @@ function hash(tx, ty) {
   return s - Math.floor(s)
 }
 
-// Grass field built from the Tiny Town tileset: mostly plain grass, with
-// occasional subtly-textured or flowering tiles scattered in (deterministic,
-// not random, so it doesn't shimmer between renders).
-function drawGround(ctx) {
-  for (let ty = 0; ty < TILES_Y; ty++) {
-    for (let tx = 0; tx < TILES_X; tx++) {
+// Grass field built from the Tiny Town tileset, covering the full world:
+// mostly plain grass, with occasional subtly-textured or flowering tiles
+// scattered in (deterministic, not random, so it doesn't shimmer between
+// renders). Only draws tiles within the camera's view (plus a 1-tile
+// margin), since the world is bigger than what's ever on screen at once.
+function drawGround(ctx, camera) {
+  const startTx = Math.max(0, Math.floor(camera.x / TILE) - 1)
+  const endTx = Math.min(WORLD_TILES_X, Math.ceil((camera.x + VIEWPORT_WIDTH) / TILE) + 1)
+  const startTy = Math.max(0, Math.floor(camera.y / TILE) - 1)
+  const endTy = Math.min(WORLD_TILES_Y, Math.ceil((camera.y + VIEWPORT_HEIGHT) / TILE) + 1)
+
+  for (let ty = startTy; ty < endTy; ty++) {
+    for (let tx = startTx; tx < endTx; tx++) {
       const n = hash(tx, ty)
       const index =
         n > 0.94
@@ -144,7 +157,7 @@ function drawInteractPrompt(ctx, x, y, bob) {
 export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
   switch (name) {
     case 'ground':
-      return drawGround(ctx)
+      return drawGround(ctx, opts.camera)
     case 'farmhouse':
       return drawFarmhouse(ctx, x, y)
     case 'plot':

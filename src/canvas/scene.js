@@ -1,5 +1,12 @@
-import { drawSprite, TILE, SCENE_WIDTH, SCENE_HEIGHT } from './sprites'
+import { drawSprite, TILE, WORLD_WIDTH, WORLD_HEIGHT } from './sprites'
 import { getGrowthStage } from '../game/growth'
+
+// The original farm layout was designed for a 20x14-tile viewport. The
+// world is now bigger than that (the camera scrolls), but the farmhouse,
+// plots, and rock stay anchored to this original "core" area — the extra
+// space is new field to the right and below it.
+const CORE_WIDTH = TILE * 20
+const CORE_HEIGHT = TILE * 14
 
 const FARMHOUSE_X = TILE * 1
 const FARMHOUSE_Y = TILE * 1
@@ -7,7 +14,7 @@ const FARMHOUSE_W = TILE * 3
 const FARMHOUSE_H = TILE * 8
 const FARMHOUSE_CENTER = { x: FARMHOUSE_X + FARMHOUSE_W / 2, y: FARMHOUSE_Y + FARMHOUSE_H - 10 }
 
-const ROCK_X = SCENE_WIDTH - TILE * 4.5
+const ROCK_X = CORE_WIDTH - TILE * 4.5
 const ROCK_Y = TILE * 1
 const ROCK_W = 56
 const ROCK_H = 48
@@ -53,21 +60,37 @@ export function computeLayout(plotCount) {
     bushes: [
       { x: FARMHOUSE_X - 4, y: FARMHOUSE_Y + FARMHOUSE_H - 6 },
       { x: FARMHOUSE_X + FARMHOUSE_W + 4, y: FARMHOUSE_Y + FARMHOUSE_H - 6, berry: true },
+      { x: CORE_WIDTH + TILE * 7, y: TILE * 6 },
+      { x: CORE_WIDTH + TILE * 12, y: TILE * 10, berry: true },
+      { x: WORLD_WIDTH - TILE * 4, y: CORE_HEIGHT + TILE * 5 },
     ],
     rocks: [
       { x: ROCK_X - 10, y: ROCK_Y + 54 },
-      { x: SCENE_WIDTH - TILE * 2, y: TILE * 10 },
+      { x: CORE_WIDTH - TILE * 2, y: TILE * 10 },
+      { x: CORE_WIDTH + TILE * 5, y: TILE * 16 },
+      { x: WORLD_WIDTH - TILE * 6, y: CORE_HEIGHT + TILE * 2 },
     ],
     trees: [
       { x: TILE * 3, y: TILE * 0.8, small: true },
       { x: TILE * 4.5, y: TILE * 1.2 },
-      { x: SCENE_WIDTH - TILE * 1, y: TILE * 5 },
-      { x: SCENE_WIDTH - TILE * 1, y: TILE * 12 },
-      { x: TILE * 1, y: SCENE_HEIGHT - TILE * 1, small: true },
-      { x: TILE * 18, y: SCENE_HEIGHT - TILE * 1.5 },
+      { x: CORE_WIDTH - TILE * 1, y: TILE * 5 },
+      { x: CORE_WIDTH - TILE * 1, y: TILE * 12 },
+      { x: TILE * 1, y: CORE_HEIGHT - TILE * 1, small: true },
+      { x: TILE * 18, y: CORE_HEIGHT - TILE * 1.5 },
+      // Extended field beyond the original viewport-sized core area.
+      { x: WORLD_WIDTH - TILE * 1, y: TILE * 2 },
+      { x: WORLD_WIDTH - TILE * 1, y: TILE * 8 },
+      { x: WORLD_WIDTH - TILE * 1, y: TILE * 14 },
+      { x: WORLD_WIDTH - TILE * 1, y: TILE * 20, small: true },
+      { x: CORE_WIDTH + TILE * 3, y: WORLD_HEIGHT - TILE * 1 },
+      { x: CORE_WIDTH + TILE * 9, y: WORLD_HEIGHT - TILE * 1, small: true },
+      { x: CORE_WIDTH + TILE * 15, y: WORLD_HEIGHT - TILE * 1 },
+      { x: TILE * 4, y: WORLD_HEIGHT - TILE * 1 },
+      { x: TILE * 10, y: WORLD_HEIGHT - TILE * 1, small: true },
     ],
     animals: [
       { x: FARMHOUSE_X + FARMHOUSE_W + 20, y: FARMHOUSE_Y + FARMHOUSE_H + 12, kind: 'sheep' },
+      { x: CORE_WIDTH + TILE * 4, y: CORE_HEIGHT - TILE * 3, kind: 'cow' },
     ],
   }
 }
@@ -97,10 +120,10 @@ export function findNearbyTarget(targets, playerX, playerY) {
   )
 }
 
-export function drawScene(ctx, { subjects, sessions }) {
+export function drawScene(ctx, { subjects, sessions, camera }) {
   const layout = computeLayout(subjects.length)
 
-  drawSprite(ctx, 'ground', 0, 0)
+  drawSprite(ctx, 'ground', 0, 0, 0, { camera })
 
   if (layout.fence) {
     drawSprite(ctx, 'fenceLine', layout.fence.x, layout.fence.y, 0, { length: layout.fence.length })
