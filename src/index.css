@@ -1,3 +1,15 @@
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VT323';
+  src: url('/fonts/VT323-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -77,9 +89,9 @@ button:focus-visible {
   background: #e4bc7d;
   border: 3px solid #7a4b26;
   border-radius: 4px;
-  padding: 0.35em 0.7em;
-  font-family: 'Courier New', ui-monospace, monospace;
-  font-weight: 700;
+  padding: 0.5em 0.7em;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 0.75em;
   color: #3b2411;
 }
 
@@ -98,22 +110,25 @@ button:focus-visible {
   outline-offset: -12px;
   padding: 1.75rem 1.5rem 1.5rem;
   color: #4a2e16;
-  font-family: 'Courier New', ui-monospace, monospace;
+  font-family: 'VT323', 'Courier New', ui-monospace, monospace;
+  font-size: 1.3em;
 }
 
 .game-panel h2 {
   margin: 0 0 1rem;
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.6rem;
   border-bottom: 3px solid #a97c46;
-  font-size: 1.4em;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 0.9em;
   letter-spacing: 0.03em;
   color: #3b2411;
 }
 
 .game-panel h3 {
-  margin: 1.4rem 0 0.5rem;
+  margin: 1.4rem 0 0.6rem;
   color: #5c3a1c;
-  font-size: 1.05em;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 0.65em;
   letter-spacing: 0.02em;
 }
 
@@ -128,11 +143,26 @@ button:focus-visible {
 }
 
 .game-panel li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
   padding: 0.35em 0.6em;
   background: #f2d6a5;
   border: 2px solid #a97c46;
   border-radius: 3px;
   margin-bottom: 0.4em;
+}
+
+.game-panel li select {
+  font-family: inherit;
+  font-size: 0.85em;
+  color: #3b2411;
+  background: #f6e3bd;
+  border: 2px solid #7a4b26;
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  max-width: 60%;
 }
 
 .game-panel form {
@@ -161,6 +191,7 @@ button:focus-visible {
 
 .game-panel button {
   font-family: inherit;
+  font-size: 1.05em;
   font-weight: 700;
   color: #f6e3bd;
   background: #8a5a30;
@@ -224,6 +255,34 @@ button:focus-visible {
 .harvest-box p {
   margin: 0 0 0.5em;
   font-weight: 700;
+}
+
+.seedbox-offer {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  background: #f2d6a5;
+  border: 2px solid #a97c46;
+  border-radius: 4px;
+  padding: 0.6em 0.8em;
+  margin-bottom: 0.75rem;
+}
+
+.seedbox-offer h3 {
+  margin: 0 0 0.3em;
+}
+
+.seedbox-offer p {
+  margin: 0;
+  font-size: 0.85em;
+}
+
+.pixel-icon {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  flex-shrink: 0;
 }
 
 @media (prefers-color-scheme: light) {

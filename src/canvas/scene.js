@@ -133,7 +133,7 @@ export function findNearbyTarget(targets, playerX, playerY) {
   )
 }
 
-export function drawScene(ctx, { subjects, sessions, harvests = {}, camera }) {
+export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops = {}, camera }) {
   const layout = computeLayout(subjects.length)
 
   drawSprite(ctx, 'ground', 0, 0, 0, { camera })
@@ -147,7 +147,8 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, camera }) {
     const subjectSessions = sessions.filter((s) => s.subjectId === subject.id)
     const harvestedAt = harvests[subject.id] ?? 0
     const { stage, isWilting } = getGrowthStage(subjectSessions, Date.now(), harvestedAt)
-    drawSprite(ctx, 'plot', plot.x, plot.y, 0, { size: plot.size, stage, isWilting })
+    const cropId = subjectCrops[subject.id] ?? null
+    drawSprite(ctx, 'plot', plot.x, plot.y, 0, { size: plot.size, stage, isWilting, cropId })
   })
 
   for (const rock of layout.rocks) {

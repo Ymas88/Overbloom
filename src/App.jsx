@@ -3,9 +3,11 @@ import { getSubjects, addSubject } from './storage/subjects'
 import { getSessions } from './storage/sessions'
 import { getHarvests, setHarvestedAt } from './storage/harvests'
 import { getCurrency, addCurrency } from './storage/currency'
-import { getLootBoxCount, addLootBox } from './storage/lootboxes'
-import { HARVEST_REWARD } from './game/growth'
+import { getLootBoxCount, addLootBox, removeLootBox } from './storage/lootboxes'
+import { getSeeds, addSeed } from './storage/seeds'
+import { getSubjectCrops, setSubjectCrop } from './storage/subjectCrops'
 import { LOOT_BOX_PRICE } from './game/shop'
+import { drawRandomCrop, getCropOrDefault, RARITIES } from './game/crops'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
@@ -18,6 +20,9 @@ function App() {
   const [harvests, setHarvests] = useState({})
   const [currency, setCurrency] = useState(0)
   const [lootBoxes, setLootBoxes] = useState(0)
+  const [seeds, setSeeds] = useState({})
+  const [subjectCrops, setSubjectCrops] = useState({})
+  const [lastReveal, setLastReveal] = useState(null)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
@@ -26,6 +31,8 @@ function App() {
     setHarvests(getHarvests())
     setCurrency(getCurrency())
     setLootBoxes(getLootBoxCount())
+    setSeeds(getSeeds())
+    setSubjectCrops(getSubjectCrops())
   }, [])
 
   useEffect(() => {
@@ -46,7 +53,9 @@ function App() {
   }
 
   function handleHarvest(subjectId) {
-    setCurrency(addCurrency(HARVEST_REWARD))
+    const crop = getCropOrDefault(subjectCrops[subjectId] ?? null)
+    const reward = RARITIES[crop.rarity].reward
+    setCurrency(addCurrency(reward))
     setHarvests(setHarvestedAt(subjectId, Date.now()))
   }
 
@@ -56,8 +65,21 @@ function App() {
     setLootBoxes(addLootBox())
   }
 
+  function handleOpenLootBox() {
+    if (lootBoxes < 1) return
+    const crop = drawRandomCrop()
+    setLootBoxes(removeLootBox())
+    setSeeds(addSeed(crop.id))
+    setLastReveal(crop)
+  }
+
+  function handleAssignCrop(subjectId, cropId) {
+    setSubjectCrops(setSubjectCrop(subjectId, cropId))
+  }
+
   function closePanel() {
     setInteraction(null)
+    setLastReveal(null)
   }
 
   const activePlotSubject =
@@ -69,6 +91,7 @@ function App() {
         subjects={subjects}
         sessions={sessions}
         harvests={harvests}
+        subjectCrops={subjectCrops}
         paused={interaction !== null}
         onInteract={setInteraction}
       />
@@ -76,7 +99,14 @@ function App() {
       <div className="hud-coins">{currency} coins</div>
 
       {interaction?.type === 'inventory' && (
-        <InventoryPanel currency={currency} lootBoxes={lootBoxes} onClose={closePanel} />
+        <InventoryPanel
+          currency={currency}
+          lootBoxes={lootBoxes}
+          seeds={seeds}
+          lastReveal={lastReveal}
+          onOpenLootBox={handleOpenLootBox}
+          onClose={closePanel}
+        />
       )}
 
       {interaction?.type === 'shop' && (
@@ -88,7 +118,10 @@ function App() {
           subjects={subjects}
           sessions={sessions}
           currency={currency}
+          seeds={seeds}
+          subjectCrops={subjectCrops}
           onAddSubject={handleAddSubject}
+          onAssignCrop={handleAssignCrop}
           onSessionSaved={handleSessionSaved}
           onClose={closePanel}
         />
@@ -99,6 +132,7 @@ function App() {
           subject={activePlotSubject}
           sessions={sessions}
           harvestedAt={harvests[activePlotSubject.id] ?? 0}
+          cropId={subjectCrops[activePlotSubject.id] ?? null}
           onSessionSaved={handleSessionSaved}
           onHarvest={handleHarvest}
           onClose={closePanel}

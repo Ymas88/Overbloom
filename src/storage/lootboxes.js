@@ -10,3 +10,9 @@ export function addLootBox() {
   localStorage.setItem(LOOTBOXES_KEY, String(updated))
   return updated
 }
+
+export function removeLootBox() {
+  const updated = Math.max(0, getLootBoxCount() - 1)
+  localStorage.setItem(LOOTBOXES_KEY, String(updated))
+  return updated
+}

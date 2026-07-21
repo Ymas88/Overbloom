@@ -7,10 +7,6 @@ const STAGE_THRESHOLDS = [
   { stage: 1, minMinutes: 30 },
 ]
 
-// Flat currency reward for harvesting a fully-grown (stage 4) plot. Crop
-// rarity/variety isn't designed yet, so every harvest pays the same for now.
-export const HARVEST_REWARD = 10
-
 function minutesSince(sessions, now, days) {
   const cutoff = now - days * DAY_MS
   return sessions

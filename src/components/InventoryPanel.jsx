@@ -1,4 +1,8 @@
-function InventoryPanel({ currency, lootBoxes, onClose }) {
+import { CROPS, RARITIES } from '../game/crops'
+
+function InventoryPanel({ currency, lootBoxes, seeds, lastReveal, onOpenLootBox, onClose }) {
+  const ownedCrops = CROPS.filter((crop) => (seeds[crop.id] ?? 0) > 0)
+
   return (
     <div className="game-panel">
       <button className="panel-close" onClick={onClose} aria-label="Close">
@@ -7,8 +11,34 @@ function InventoryPanel({ currency, lootBoxes, onClose }) {
       <h2>Inventory</h2>
       <p className="currency-display">{currency} coins</p>
 
-      <h3>Unopened loot boxes: {lootBoxes}</h3>
-      <p>What&apos;s inside is still being figured out — check back later!</p>
+      <h3>Unopened seedboxes: {lootBoxes}</h3>
+      {lootBoxes > 0 ? (
+        <button onClick={onOpenLootBox}>Open a seedbox</button>
+      ) : (
+        <p>Buy some at the Trading Post!</p>
+      )}
+
+      {lastReveal && (
+        <div className="harvest-box">
+          <p>
+            You got: {lastReveal.name} ({RARITIES[lastReveal.rarity].label})!
+          </p>
+        </div>
+      )}
+
+      <h3>Seeds</h3>
+      {ownedCrops.length === 0 ? (
+        <p>No seeds yet — open a seedbox to get some.</p>
+      ) : (
+        <ul>
+          {ownedCrops.map((crop) => (
+            <li key={crop.id}>
+              {crop.name} ({RARITIES[crop.rarity].label})
+              <span>{seeds[crop.id]}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { drawTile, drawTileBlock, TILE_INDEX } from './tileset'
 import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
 import { drawDungeonTile, DUNGEON_TILE_INDEX } from './dungeonTileset'
 import { drawGrowthIcon, drawWiltedIcon } from './growthSprites'
+import { drawCropIcon } from './cropSprites'
 
 // Virtual (internal) canvas resolution: a 20x14-tile window onto the world,
 // scaled up with CSS to fill its container (image smoothing disabled), so
@@ -162,7 +163,11 @@ const PLOT_GRID = 3
 const PLOT_BORDER = 4
 const PLOT_ICON_GAP = 3
 
-function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false } = {}) {
+// cropId is the specific crop (from a loot box seed) assigned to this
+// subject, if any. Stages 0-3 always show the generic growing sprites
+// (this pack has no growth-stage frames per crop) — only a fully-grown
+// plot (stage 4) reveals the assigned crop's own icon.
+function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false, cropId = null } = {}) {
   const icon = (size - PLOT_BORDER * 2 - PLOT_ICON_GAP * (PLOT_GRID - 1)) / PLOT_GRID
 
   px(ctx, x, y, size, size, palette.wood.outline)
@@ -174,11 +179,14 @@ function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false } = {}) {
   px(ctx, x, y + size - 3, 3, 3, palette.wood.light)
   px(ctx, x + size - 3, y + size - 3, 3, 3, palette.wood.light)
 
+  const showCrop = stage === 4 && cropId
+
   for (let row = 0; row < PLOT_GRID; row++) {
     for (let col = 0; col < PLOT_GRID; col++) {
       const ix = x + PLOT_BORDER + col * (icon + PLOT_ICON_GAP)
       const iy = y + PLOT_BORDER + row * (icon + PLOT_ICON_GAP)
-      drawGrowthIcon(ctx, stage, ix, iy, icon)
+      if (showCrop) drawCropIcon(ctx, cropId, ix, iy, icon)
+      else drawGrowthIcon(ctx, stage, ix, iy, icon)
     }
   }
 
