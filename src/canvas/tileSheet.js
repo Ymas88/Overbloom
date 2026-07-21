@@ -19,11 +19,14 @@ export function createTileSheet(src, cols) {
     else readyListeners.push(callback)
   }
 
-  function drawTile(ctx, index, dx, dy) {
+  // size lets a tile be drawn larger than its native 16x16 (e.g. a tree
+  // that should read as taller than one ground tile) — dx,dy stays the
+  // top-left corner of the (possibly enlarged) destination box.
+  function drawTile(ctx, index, dx, dy, size = TILE) {
     if (!ready) return
     const col = index % cols
     const row = Math.floor(index / cols)
-    ctx.drawImage(image, col * TILE, row * TILE, TILE, TILE, Math.round(dx), Math.round(dy), TILE, TILE)
+    ctx.drawImage(image, col * TILE, row * TILE, TILE, TILE, Math.round(dx), Math.round(dy), size, size)
   }
 
   function drawTileBlock(ctx, grid, dx, dy) {

@@ -78,21 +78,31 @@ function drawFarmhouse(ctx, x, y) {
   drawTileBlock(ctx, TILE_INDEX.BARN_WALL, x, y + TILE * 4)
 }
 
+// Draws a single tile scaled up by `scale`, anchored at its bottom-center
+// (x, y) — e.g. scale 1.75 on a tree makes it read as taller than one
+// ground tile instead of being squeezed flat into exactly 16px.
+function drawScaledTile(ctx, index, x, y, scale) {
+  const size = TILE * scale
+  drawTile(ctx, index, x - size / 2, y - size, size)
+}
+
 function drawTree(ctx, x, y, { small = false } = {}) {
-  drawTile(ctx, small ? TILE_INDEX.TREE_SMALL : TILE_INDEX.TREE, x - TILE / 2, y - TILE)
+  if (small) drawScaledTile(ctx, TILE_INDEX.TREE_SMALL, x, y, 1.3)
+  else drawScaledTile(ctx, TILE_INDEX.TREE, x, y, 1.75)
 }
 
 function drawBush(ctx, x, y, { berry = false } = {}) {
-  drawTile(ctx, berry ? TILE_INDEX.BERRY_BUSH : TILE_INDEX.BUSH, x - TILE / 2, y - TILE)
+  drawScaledTile(ctx, berry ? TILE_INDEX.BERRY_BUSH : TILE_INDEX.BUSH, x, y, 1.3)
 }
 
 function drawRock(ctx, x, y, { large = false } = {}) {
-  drawTile(ctx, large ? TILE_INDEX.ROCKS : TILE_INDEX.ROCKS_SMALL, x - TILE / 2, y - TILE)
+  drawScaledTile(ctx, large ? TILE_INDEX.ROCKS : TILE_INDEX.ROCKS_SMALL, x, y, large ? 1.3 : 1.15)
 }
 
 function drawAnimal(ctx, x, y, { kind = 'sheep' } = {}) {
   const index = { sheep: TILE_INDEX.SHEEP, cow: TILE_INDEX.COW, chicken: TILE_INDEX.CHICKEN }[kind]
-  drawTile(ctx, index, x - TILE / 2, y - TILE)
+  const scale = { sheep: 1.2, cow: 1.4, chicken: 1.1 }[kind]
+  drawScaledTile(ctx, index, x, y, scale)
 }
 
 // A rocky outcrop with a dark cave mouth, standing in for the future mine.
