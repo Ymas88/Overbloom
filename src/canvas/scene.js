@@ -20,6 +20,13 @@ const ROCK_W = 56
 const ROCK_H = 48
 const ROCK_CENTER = { x: ROCK_X + 28, y: ROCK_Y + 24 }
 
+const HUT_X = TILE * 2
+const HUT_Y = TILE * 9.5
+const HUT_W = TILE * 3
+const HUT_H = 52 // 20px roof + two 16px wall rows
+const HUT_DOOR_CENTER = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H - 6 }
+const SHOPKEEPER_POS = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H + 8 }
+
 const PLOT_SIZE = 56
 const PLOT_GAP = 10
 const PLOTS_ORIGIN_X = TILE * 6
@@ -49,11 +56,14 @@ export function computeLayout(plotCount) {
   const solids = [
     { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H },
     { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H },
+    { x: HUT_X, y: HUT_Y, width: HUT_W, height: HUT_H },
   ]
 
   return {
     farmhouse: { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H, center: FARMHOUSE_CENTER },
     rock: { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H, center: ROCK_CENTER },
+    hut: { x: HUT_X, y: HUT_Y, center: HUT_DOOR_CENTER },
+    shopkeeper: SHOPKEEPER_POS,
     plots,
     fence,
     solids,
@@ -98,7 +108,10 @@ export function computeLayout(plotCount) {
 // Interactable points the player can walk up to: the farmhouse (manage
 // subjects) and one per subject's plot (study that subject).
 export function getInteractionTargets(layout, subjects) {
-  const targets = [{ type: 'farmhouse', ...layout.farmhouse.center }]
+  const targets = [
+    { type: 'farmhouse', ...layout.farmhouse.center },
+    { type: 'shop', ...layout.hut.center },
+  ]
 
   layout.plots.forEach((plot, i) => {
     const subject = subjects[i]
@@ -148,6 +161,8 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, camera }) {
   }
 
   drawSprite(ctx, 'farmhouse', layout.farmhouse.x, layout.farmhouse.y)
+  drawSprite(ctx, 'hut', layout.hut.x, layout.hut.y)
+  drawSprite(ctx, 'shopkeeper', layout.shopkeeper.x, layout.shopkeeper.y)
 
   for (const bush of layout.bushes) {
     drawSprite(ctx, 'bush', bush.x, bush.y, 0, { berry: bush.berry })

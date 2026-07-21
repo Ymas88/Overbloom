@@ -1,6 +1,7 @@
 import { palette } from './palette'
 import { drawTile, drawTileBlock, TILE_INDEX } from './tileset'
 import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
+import { drawDungeonTile, DUNGEON_TILE_INDEX } from './dungeonTileset'
 import { drawGrowthIcon, drawWiltedIcon } from './growthSprites'
 
 // Virtual (internal) canvas resolution: a 20x14-tile window onto the world,
@@ -103,6 +104,37 @@ function drawAnimal(ctx, x, y, { kind = 'sheep' } = {}) {
   const index = { sheep: TILE_INDEX.SHEEP, cow: TILE_INDEX.COW, chicken: TILE_INDEX.CHICKEN }[kind]
   const scale = { sheep: 1.2, cow: 1.4, chicken: 1.1 }[kind]
   drawScaledTile(ctx, index, x, y, scale)
+}
+
+// A small trader's hut: a procedural roof (matching the farmhouse's style,
+// just smaller) over a 3x2-tile stone wall-and-door block from Tiny Town.
+// x,y = top-left corner of the roof.
+function drawHut(ctx, x, y) {
+  const w = TILE * 3
+  const roofH = 20
+
+  px(ctx, x, y, w, roofH, palette.stone.mid)
+  px(ctx, x, y, w, 4, palette.stone.light)
+  px(ctx, x, y + roofH - 4, w, 4, palette.stone.dark)
+  px(ctx, x, y + roofH / 2 - 2, w, 4, palette.stone.light)
+  px(ctx, x - 2, y - 2, w + 4, 2, palette.stone.outline)
+  px(ctx, x - 2, y, 2, roofH, palette.stone.outline)
+  px(ctx, x + w, y, 2, roofH, palette.stone.outline)
+
+  const wallY = y + roofH
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE, x, wallY)
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE, x + TILE, wallY)
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE, x + TILE * 2, wallY)
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE_BASE, x, wallY + TILE)
+  drawTownTile(ctx, TOWN_TILE_INDEX.DOOR_STONE, x + TILE, wallY + TILE)
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE_BASE, x + TILE * 2, wallY + TILE)
+}
+
+// The shopkeeper NPC, from Tiny Dungeon (the only pack with more than one
+// person in it). Drawn at native size like the player, since it's a
+// person, not a tall/wide object that needs scaling up.
+function drawShopkeeper(ctx, x, y) {
+  drawDungeonTile(ctx, DUNGEON_TILE_INDEX.SHOPKEEPER, x - TILE / 2, y - TILE)
 }
 
 // A rocky outcrop with a dark cave mouth, standing in for the future mine.
@@ -216,6 +248,10 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
       return drawPlot(ctx, x, y, opts.size ?? TILE * 2, opts)
     case 'rockyOutcrop':
       return drawRockyOutcrop(ctx, x, y)
+    case 'hut':
+      return drawHut(ctx, x, y)
+    case 'shopkeeper':
+      return drawShopkeeper(ctx, x, y)
     case 'bush':
       return drawBush(ctx, x, y, opts)
     case 'rock':

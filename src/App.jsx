@@ -3,24 +3,29 @@ import { getSubjects, addSubject } from './storage/subjects'
 import { getSessions } from './storage/sessions'
 import { getHarvests, setHarvestedAt } from './storage/harvests'
 import { getCurrency, addCurrency } from './storage/currency'
+import { getLootBoxCount, addLootBox } from './storage/lootboxes'
 import { HARVEST_REWARD } from './game/growth'
+import { LOOT_BOX_PRICE } from './game/shop'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
 import InventoryPanel from './components/InventoryPanel'
+import ShopPanel from './components/ShopPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
   const [sessions, setSessions] = useState([])
   const [harvests, setHarvests] = useState({})
   const [currency, setCurrency] = useState(0)
-  const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId}
+  const [lootBoxes, setLootBoxes] = useState(0)
+  const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
     setSubjects(getSubjects())
     setSessions(getSessions())
     setHarvests(getHarvests())
     setCurrency(getCurrency())
+    setLootBoxes(getLootBoxCount())
   }, [])
 
   useEffect(() => {
@@ -45,6 +50,12 @@ function App() {
     setHarvests(setHarvestedAt(subjectId, Date.now()))
   }
 
+  function handleBuyLootBox() {
+    if (currency < LOOT_BOX_PRICE) return
+    setCurrency(addCurrency(-LOOT_BOX_PRICE))
+    setLootBoxes(addLootBox())
+  }
+
   function closePanel() {
     setInteraction(null)
   }
@@ -65,7 +76,11 @@ function App() {
       <div className="hud-coins">{currency} coins</div>
 
       {interaction?.type === 'inventory' && (
-        <InventoryPanel currency={currency} onClose={closePanel} />
+        <InventoryPanel currency={currency} lootBoxes={lootBoxes} onClose={closePanel} />
+      )}
+
+      {interaction?.type === 'shop' && (
+        <ShopPanel currency={currency} onBuyLootBox={handleBuyLootBox} onClose={closePanel} />
       )}
 
       {interaction?.type === 'farmhouse' && (
