@@ -61,6 +61,7 @@ function App() {
     setCurrency(addCurrency(reward))
     setHarvests(setHarvestedAt(subjectId, Date.now()))
     setHarvestSignal((n) => n + 1)
+    setInteraction(null)
   }
 
   function handleBuyLootBox() {
