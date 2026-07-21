@@ -13,6 +13,7 @@ import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
 import InventoryPanel from './components/InventoryPanel'
 import ShopPanel from './components/ShopPanel'
+import LootRevealPanel from './components/LootRevealPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -22,7 +23,7 @@ function App() {
   const [lootBoxes, setLootBoxes] = useState(0)
   const [seeds, setSeeds] = useState({})
   const [subjectCrops, setSubjectCrops] = useState({})
-  const [lastReveal, setLastReveal] = useState(null)
+  const [revealCrop, setRevealCrop] = useState(null)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
@@ -37,12 +38,13 @@ function App() {
 
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key === 'Escape' && interaction) setInteraction(null)
-      if ((e.key === 'i' || e.key === 'I') && !interaction) setInteraction({ type: 'inventory' })
+      if (e.key === 'Escape' && revealCrop) setRevealCrop(null)
+      else if (e.key === 'Escape' && interaction) setInteraction(null)
+      if ((e.key === 'i' || e.key === 'I') && !interaction && !revealCrop) setInteraction({ type: 'inventory' })
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [interaction])
+  }, [interaction, revealCrop])
 
   function handleAddSubject(name) {
     setSubjects(addSubject(name))
@@ -70,7 +72,8 @@ function App() {
     const crop = drawRandomCrop()
     setLootBoxes(removeLootBox())
     setSeeds(addSeed(crop.id))
-    setLastReveal(crop)
+    setInteraction(null)
+    setRevealCrop(crop)
   }
 
   function handleAssignCrop(subjectId, cropId) {
@@ -79,7 +82,6 @@ function App() {
 
   function closePanel() {
     setInteraction(null)
-    setLastReveal(null)
   }
 
   const activePlotSubject =
@@ -92,7 +94,7 @@ function App() {
         sessions={sessions}
         harvests={harvests}
         subjectCrops={subjectCrops}
-        paused={interaction !== null}
+        paused={interaction !== null || revealCrop !== null}
         onInteract={setInteraction}
       />
 
@@ -103,11 +105,12 @@ function App() {
           currency={currency}
           lootBoxes={lootBoxes}
           seeds={seeds}
-          lastReveal={lastReveal}
           onOpenLootBox={handleOpenLootBox}
           onClose={closePanel}
         />
       )}
+
+      {revealCrop && <LootRevealPanel crop={revealCrop} onClose={() => setRevealCrop(null)} />}
 
       {interaction?.type === 'shop' && (
         <ShopPanel currency={currency} onBuyLootBox={handleBuyLootBox} onClose={closePanel} />

@@ -28,7 +28,10 @@ function ShopPanel({ currency, onBuyLootBox, onClose }) {
       <ul>
         {CROPS.map((crop) => (
           <li key={crop.id}>
-            <span>{crop.name}</span>
+            <span className="seed-name">
+              <img src={`/sprites/crops/${crop.id}.png`} alt="" className="crop-icon" />
+              {crop.name}
+            </span>
             <span>
               {RARITIES[crop.rarity].label} — {getDropChance(crop).toFixed(1)}%
             </span>

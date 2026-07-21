@@ -13,7 +13,12 @@ function SubjectList({ subjects, seeds, subjectCrops, onAssignCrop }) {
         const assignedCropId = subjectCrops[subject.id] ?? ''
         return (
           <li key={subject.id}>
-            {subject.name}
+            <span className="seed-name">
+              {assignedCropId && (
+                <img src={`/sprites/crops/${assignedCropId}.png`} alt="" className="crop-icon" />
+              )}
+              {subject.name}
+            </span>
             <select
               value={assignedCropId}
               onChange={(e) => onAssignCrop(subject.id, e.target.value || null)}

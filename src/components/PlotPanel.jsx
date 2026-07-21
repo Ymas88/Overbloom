@@ -17,8 +17,10 @@ function PlotPanel({ subject, sessions, harvestedAt, cropId, onSessionSaved, onH
       </button>
       <h2>{subject.name}</h2>
 
-      <p>
-        Growing: {crop.name} ({RARITIES[crop.rarity].label})
+      <p className="seed-name">
+        Growing:
+        {crop.id && <img src={`/sprites/crops/${crop.id}.png`} alt="" className="crop-icon" />}
+        {crop.name} ({RARITIES[crop.rarity].label})
       </p>
 
       {readyToHarvest && (

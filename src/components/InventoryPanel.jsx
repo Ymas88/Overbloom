@@ -1,6 +1,6 @@
 import { CROPS, RARITIES } from '../game/crops'
 
-function InventoryPanel({ currency, lootBoxes, seeds, lastReveal, onOpenLootBox, onClose }) {
+function InventoryPanel({ currency, lootBoxes, seeds, onOpenLootBox, onClose }) {
   const ownedCrops = CROPS.filter((crop) => (seeds[crop.id] ?? 0) > 0)
 
   return (
@@ -18,14 +18,6 @@ function InventoryPanel({ currency, lootBoxes, seeds, lastReveal, onOpenLootBox,
         <p>Buy some at the Trading Post!</p>
       )}
 
-      {lastReveal && (
-        <div className="harvest-box">
-          <p>
-            You got: {lastReveal.name} ({RARITIES[lastReveal.rarity].label})!
-          </p>
-        </div>
-      )}
-
       <h3>Seeds</h3>
       {ownedCrops.length === 0 ? (
         <p>No seeds yet — open a seedbox to get some.</p>
@@ -33,7 +25,10 @@ function InventoryPanel({ currency, lootBoxes, seeds, lastReveal, onOpenLootBox,
         <ul>
           {ownedCrops.map((crop) => (
             <li key={crop.id}>
-              {crop.name} ({RARITIES[crop.rarity].label})
+              <span className="seed-name">
+                <img src={`/sprites/crops/${crop.id}.png`} alt="" className="crop-icon" />
+                {crop.name} ({RARITIES[crop.rarity].label})
+              </span>
               <span>{seeds[crop.id]}</span>
             </li>
           ))}
