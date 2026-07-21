@@ -7,6 +7,7 @@ import { HARVEST_REWARD } from './game/growth'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
+import InventoryPanel from './components/InventoryPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -23,9 +24,9 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (!interaction) return
     function handleKeyDown(e) {
-      if (e.key === 'Escape') setInteraction(null)
+      if (e.key === 'Escape' && interaction) setInteraction(null)
+      if ((e.key === 'i' || e.key === 'I') && !interaction) setInteraction({ type: 'inventory' })
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
@@ -60,6 +61,12 @@ function App() {
         paused={interaction !== null}
         onInteract={setInteraction}
       />
+
+      <div className="hud-coins">{currency} coins</div>
+
+      {interaction?.type === 'inventory' && (
+        <InventoryPanel currency={currency} onClose={closePanel} />
+      )}
 
       {interaction?.type === 'farmhouse' && (
         <FarmhousePanel

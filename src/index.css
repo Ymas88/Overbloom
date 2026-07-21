@@ -70,6 +70,19 @@ button:focus-visible {
   image-rendering: crisp-edges;
 }
 
+.hud-coins {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: #e4bc7d;
+  border: 3px solid #7a4b26;
+  border-radius: 4px;
+  padding: 0.35em 0.7em;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-weight: 700;
+  color: #3b2411;
+}
+
 .game-panel {
   position: absolute;
   top: 50%;
