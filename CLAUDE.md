@@ -13,13 +13,14 @@ Kieran is 16 and does not know how to code. Claude implements everything; Kieran
 overbloom (working title) is a gamified study timer that grows a pixel-art farm (Stardew Valley style) from logged focus time. Each study subject is its own plot; crops grow from logged minutes and wilt with neglect. A future companion Chrome extension will block distracting sites during study sessions.
 
 ## Current status
-V1 stores everything in `localStorage` — no accounts, no backend. Project is in early setup; features have not been built yet.
+V1 stores everything in `localStorage` — no accounts, no backend. The farm is a top-down, walkable pixel-art scene (Kenney CC0 "Tiny Farm"/"Tiny Town" tile packs) bigger than the screen, with a scrolling camera that follows the player and collision against the farmhouse/rocky outcrop. Walk up to the farmhouse and press E to add/manage subjects; walk up to a subject's plot and press E to run its study timer. Each plot renders as a bordered pen of 9 crop icons whose growth stage reflects real logged study time, and wilts after 3 days without a session.
 
 ## Folder structure
-- `src/components/` — reusable UI pieces
+- `src/components/` — reusable UI pieces (panels, forms, the canvas host)
+- `src/canvas/` — canvas rendering only: tile-sheet loading, scene layout/composition, sprite drawing. No game logic, no storage code.
 - `src/game/` — game logic only (crop growth, wilting rules) — no UI, no storage code
 - `src/storage/` — localStorage read/write helpers, kept isolated so they're swappable later
-- `public/` — static files copied as-is into the built site
+- `public/` — static files copied as-is into the built site (includes `tiles/` and `sprites/` art, each with a `*-LICENSE.txt` next to it)
 
 ## Deployment
 Hosted on Vercel, auto-deploys from the `main` branch on GitHub (`github.com/Ymas88/Overbloom`) on every push.
