@@ -98,6 +98,8 @@ function FarmCanvas({ subjects, sessions, harvests, paused, onInteract }) {
       const targets = getInteractionTargets(layout, subjects)
       const player = playerRef.current
 
+      let walking = false
+
       if (!pausedRef.current) {
         const keys = keysRef.current
         let dx = 0
@@ -107,8 +109,9 @@ function FarmCanvas({ subjects, sessions, harvests, paused, onInteract }) {
           dx += mx
           dy += my
         }
+        walking = dx !== 0 || dy !== 0
 
-        if (dx !== 0 || dy !== 0) {
+        if (walking) {
           const len = Math.hypot(dx, dy)
           dx /= len
           dy /= len
@@ -126,13 +129,20 @@ function FarmCanvas({ subjects, sessions, harvests, paused, onInteract }) {
         }
       }
 
+      player.walkClock = walking ? (player.walkClock ?? 0) + dt : 0
+
       const camera = cameraFor(player)
 
       ctx.save()
       ctx.translate(-Math.round(camera.x), -Math.round(camera.y))
 
       drawScene(ctx, { subjects, sessions, harvests, camera })
-      drawSprite(ctx, 'player', player.x, player.y, 0, { facing: player.facing })
+      drawSprite(ctx, 'player', player.x, player.y, 0, {
+        facing: player.facing,
+        walking,
+        walkClock: player.walkClock,
+        idleClock: now / 1000,
+      })
 
       const nearby = pausedRef.current ? null : findNearbyTarget(targets, player.x, player.y)
       if (nearby) {

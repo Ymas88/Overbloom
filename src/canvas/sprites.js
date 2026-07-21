@@ -160,20 +160,29 @@ function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false } = {}) {
 // The pack only has one static pose (facing the camera), so left/right
 // movement mirrors it horizontally; up/down movement keeps it as-is since
 // there's no back-facing pose to swap to.
-function drawPlayer(ctx, x, y, { facing = 'right' } = {}) {
+// No walk-cycle sprite sheet exists for this character (the Tiny Farm pack
+// only has one static pose), so movement is conveyed procedurally: a quick
+// bounce while walking, and a slow gentle sway while idle. The shadow stays
+// fixed on the ground so the bounce reads as a hop, not the whole sprite
+// floating.
+function drawPlayer(ctx, x, y, { facing = 'right', walking = false, walkClock = 0, idleClock = 0 } = {}) {
+  const bob = walking ? Math.abs(Math.sin(walkClock * 9)) * 2 : Math.sin(idleClock * 2) * 1
+
   ctx.fillStyle = 'rgba(0,0,0,0.25)'
   ctx.beginPath()
   ctx.ellipse(Math.round(x), Math.round(y) - 1, 5, 2, 0, 0, Math.PI * 2)
   ctx.fill()
 
+  const drawY = y - bob
+
   if (facing === 'left') {
     ctx.save()
     ctx.translate(Math.round(x), 0)
     ctx.scale(-1, 1)
-    drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, y - TILE)
+    drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, drawY - TILE)
     ctx.restore()
   } else {
-    drawTile(ctx, TILE_INDEX.CHARACTER, x - TILE / 2, y - TILE)
+    drawTile(ctx, TILE_INDEX.CHARACTER, x - TILE / 2, drawY - TILE)
   }
 }
 
