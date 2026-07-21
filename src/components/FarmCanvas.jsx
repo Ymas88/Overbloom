@@ -1,6 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { drawScene, computeLayout, getInteractionTargets, findNearbyTarget } from '../canvas/scene'
-import { drawSprite, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, WORLD_WIDTH, WORLD_HEIGHT } from '../canvas/sprites'
+import {
+  drawSprite,
+  VIEWPORT_WIDTH,
+  VIEWPORT_HEIGHT,
+  WORLD_WIDTH,
+  WORLD_HEIGHT,
+  HARVEST_ANIM_DURATION,
+} from '../canvas/sprites'
 
 const PLAYER_SPEED = 90 // virtual px per second
 const MARGIN = 8
@@ -43,12 +50,14 @@ function cameraFor(player) {
   }
 }
 
-function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, onInteract }) {
+function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harvestSignal, onInteract }) {
   const canvasRef = useRef(null)
   const playerRef = useRef({ x: VIEWPORT_WIDTH / 2, y: VIEWPORT_HEIGHT - 32, facing: 'right' })
   const keysRef = useRef(new Set())
   const pausedRef = useRef(paused)
   const onInteractRef = useRef(onInteract)
+  const harvestingRef = useRef(false)
+  const harvestClockRef = useRef(0)
 
   useEffect(() => {
     pausedRef.current = paused
@@ -58,6 +67,14 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, onInte
   useEffect(() => {
     onInteractRef.current = onInteract
   }, [onInteract])
+
+  // Each harvest bumps this counter — kick off the crouch-and-pop animation
+  // whenever it changes, regardless of the new value.
+  useEffect(() => {
+    if (!harvestSignal) return
+    harvestingRef.current = true
+    harvestClockRef.current = 0
+  }, [harvestSignal])
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -131,6 +148,14 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, onInte
 
       player.walkClock = walking ? (player.walkClock ?? 0) + dt : 0
 
+      if (harvestingRef.current) {
+        harvestClockRef.current += dt
+        if (harvestClockRef.current >= HARVEST_ANIM_DURATION) {
+          harvestingRef.current = false
+          harvestClockRef.current = 0
+        }
+      }
+
       const camera = cameraFor(player)
 
       ctx.save()
@@ -142,6 +167,8 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, onInte
         walking,
         walkClock: player.walkClock,
         idleClock: now / 1000,
+        harvesting: harvestingRef.current,
+        harvestClock: harvestClockRef.current,
       })
 
       const nearby = pausedRef.current ? null : findNearbyTarget(targets, player.x, player.y)

@@ -196,6 +196,10 @@ function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false, cropId = null
   }
 }
 
+// How long the harvest crouch-and-pop animation plays for, in seconds.
+// Exported so FarmCanvas can time the animation clock the same way.
+export const HARVEST_ANIM_DURATION = 0.45
+
 // Top-down character from the Tiny Farm tileset. x,y = feet position.
 // The pack only has one static pose (facing the camera), so left/right
 // movement mirrors it horizontally; up/down movement keeps it as-is since
@@ -204,9 +208,26 @@ function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false, cropId = null
 // only has one static pose), so movement is conveyed procedurally: a quick
 // bounce while walking, and a slow gentle sway while idle. The shadow stays
 // fixed on the ground so the bounce reads as a hop, not the whole sprite
-// floating.
-function drawPlayer(ctx, x, y, { facing = 'right', walking = false, walkClock = 0, idleClock = 0 } = {}) {
-  const bob = walking ? Math.abs(Math.sin(walkClock * 9)) * 2 : Math.sin(idleClock * 2) * 1
+// floating. Harvesting reuses the same trick — a crouch-down-and-squash dip,
+// timed by harvestClock — instead of needing a dedicated harvest pose.
+function drawPlayer(
+  ctx,
+  x,
+  y,
+  { facing = 'right', walking = false, walkClock = 0, idleClock = 0, harvesting = false, harvestClock = 0 } = {}
+) {
+  let bob
+  let squashX = 1
+  let squashY = 1
+
+  if (harvesting) {
+    const dip = Math.sin(Math.PI * Math.min(harvestClock / HARVEST_ANIM_DURATION, 1))
+    bob = -2.5 * dip
+    squashY = 1 - 0.15 * dip
+    squashX = 1 + 0.1 * dip
+  } else {
+    bob = walking ? Math.abs(Math.sin(walkClock * 9)) * 2 : Math.sin(idleClock * 2) * 1
+  }
 
   ctx.fillStyle = 'rgba(0,0,0,0.25)'
   ctx.beginPath()
@@ -214,16 +235,13 @@ function drawPlayer(ctx, x, y, { facing = 'right', walking = false, walkClock = 
   ctx.fill()
 
   const drawY = y - bob
+  const mirror = facing === 'left' ? -1 : 1
 
-  if (facing === 'left') {
-    ctx.save()
-    ctx.translate(Math.round(x), 0)
-    ctx.scale(-1, 1)
-    drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, drawY - TILE)
-    ctx.restore()
-  } else {
-    drawTile(ctx, TILE_INDEX.CHARACTER, x - TILE / 2, drawY - TILE)
-  }
+  ctx.save()
+  ctx.translate(Math.round(x), Math.round(drawY))
+  ctx.scale(mirror * squashX, squashY)
+  drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, -TILE)
+  ctx.restore()
 }
 
 // Small bouncing "press E" prompt shown above an interactable when the

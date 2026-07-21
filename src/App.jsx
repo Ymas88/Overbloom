@@ -24,6 +24,7 @@ function App() {
   const [seeds, setSeeds] = useState({})
   const [subjectCrops, setSubjectCrops] = useState({})
   const [revealCrop, setRevealCrop] = useState(null)
+  const [harvestSignal, setHarvestSignal] = useState(0)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
@@ -59,6 +60,7 @@ function App() {
     const reward = RARITIES[crop.rarity].reward
     setCurrency(addCurrency(reward))
     setHarvests(setHarvestedAt(subjectId, Date.now()))
+    setHarvestSignal((n) => n + 1)
   }
 
   function handleBuyLootBox() {
@@ -95,6 +97,7 @@ function App() {
         harvests={harvests}
         subjectCrops={subjectCrops}
         paused={interaction !== null || revealCrop !== null}
+        harvestSignal={harvestSignal}
         onInteract={setInteraction}
       />
 
