@@ -21,7 +21,7 @@ const ROCK_H = 48
 const ROCK_CENTER = { x: ROCK_X + 28, y: ROCK_Y + 24 }
 
 const HUT_X = TILE * 2
-const HUT_Y = TILE * 9.5
+const HUT_Y = TILE * 13
 const HUT_W = TILE * 3
 const HUT_H = 52 // 20px roof + two 16px wall rows
 const HUT_DOOR_CENTER = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H - 6 }
