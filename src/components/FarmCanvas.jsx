@@ -43,7 +43,7 @@ function cameraFor(player) {
   }
 }
 
-function FarmCanvas({ subjects, sessions, paused, onInteract }) {
+function FarmCanvas({ subjects, sessions, harvests, paused, onInteract }) {
   const canvasRef = useRef(null)
   const playerRef = useRef({ x: VIEWPORT_WIDTH / 2, y: VIEWPORT_HEIGHT - 32, facing: 'right' })
   const keysRef = useRef(new Set())
@@ -131,7 +131,7 @@ function FarmCanvas({ subjects, sessions, paused, onInteract }) {
       ctx.save()
       ctx.translate(-Math.round(camera.x), -Math.round(camera.y))
 
-      drawScene(ctx, { subjects, sessions, camera })
+      drawScene(ctx, { subjects, sessions, harvests, camera })
       drawSprite(ctx, 'player', player.x, player.y, 0, { facing: player.facing })
 
       const nearby = pausedRef.current ? null : findNearbyTarget(targets, player.x, player.y)
@@ -147,7 +147,7 @@ function FarmCanvas({ subjects, sessions, paused, onInteract }) {
 
     animationFrameId = requestAnimationFrame(frame)
     return () => cancelAnimationFrame(animationFrameId)
-  }, [subjects, sessions])
+  }, [subjects, sessions, harvests])
 
   return (
     <canvas

@@ -3,13 +3,15 @@ import SubjectList from './SubjectList'
 import SessionList from './SessionList'
 import DevSessionForm from './DevSessionForm'
 
-function FarmhousePanel({ subjects, sessions, onAddSubject, onSessionSaved, onClose }) {
+function FarmhousePanel({ subjects, sessions, currency, onAddSubject, onSessionSaved, onClose }) {
   return (
     <div className="game-panel">
       <button className="panel-close" onClick={onClose} aria-label="Close">
         ×
       </button>
       <h2>Farmhouse</h2>
+
+      <p className="currency-display">{currency} coins</p>
 
       <h3>Subjects</h3>
       <SubjectForm onAdd={onAddSubject} />

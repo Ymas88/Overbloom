@@ -188,6 +188,31 @@ button:focus-visible {
   margin: 1rem 0;
 }
 
+.currency-display {
+  font-weight: 700;
+  color: #7a4b26;
+  background: #f2d6a5;
+  border: 2px solid #a97c46;
+  border-radius: 3px;
+  display: inline-block;
+  padding: 0.3em 0.7em;
+  margin: 0 0 0.5rem;
+}
+
+.harvest-box {
+  background: #f2d6a5;
+  border: 2px solid #a97c46;
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.harvest-box p {
+  margin: 0 0 0.5em;
+  font-weight: 700;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

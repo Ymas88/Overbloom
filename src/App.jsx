@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { getSubjects, addSubject } from './storage/subjects'
 import { getSessions } from './storage/sessions'
+import { getHarvests, setHarvestedAt } from './storage/harvests'
+import { getCurrency, addCurrency } from './storage/currency'
+import { HARVEST_REWARD } from './game/growth'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
@@ -8,11 +11,15 @@ import PlotPanel from './components/PlotPanel'
 function App() {
   const [subjects, setSubjects] = useState([])
   const [sessions, setSessions] = useState([])
+  const [harvests, setHarvests] = useState({})
+  const [currency, setCurrency] = useState(0)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId}
 
   useEffect(() => {
     setSubjects(getSubjects())
     setSessions(getSessions())
+    setHarvests(getHarvests())
+    setCurrency(getCurrency())
   }, [])
 
   useEffect(() => {
@@ -32,6 +39,11 @@ function App() {
     setSessions(getSessions())
   }
 
+  function handleHarvest(subjectId) {
+    setCurrency(addCurrency(HARVEST_REWARD))
+    setHarvests(setHarvestedAt(subjectId, Date.now()))
+  }
+
   function closePanel() {
     setInteraction(null)
   }
@@ -44,6 +56,7 @@ function App() {
       <FarmCanvas
         subjects={subjects}
         sessions={sessions}
+        harvests={harvests}
         paused={interaction !== null}
         onInteract={setInteraction}
       />
@@ -52,6 +65,7 @@ function App() {
         <FarmhousePanel
           subjects={subjects}
           sessions={sessions}
+          currency={currency}
           onAddSubject={handleAddSubject}
           onSessionSaved={handleSessionSaved}
           onClose={closePanel}
@@ -59,7 +73,14 @@ function App() {
       )}
 
       {activePlotSubject && (
-        <PlotPanel subject={activePlotSubject} onSessionSaved={handleSessionSaved} onClose={closePanel} />
+        <PlotPanel
+          subject={activePlotSubject}
+          sessions={sessions}
+          harvestedAt={harvests[activePlotSubject.id] ?? 0}
+          onSessionSaved={handleSessionSaved}
+          onHarvest={handleHarvest}
+          onClose={closePanel}
+        />
       )}
     </div>
   )
