@@ -361,7 +361,6 @@ button:focus-visible {
 
 .inventory-slot {
   position: relative;
-  aspect-ratio: 1;
   background: #f2d6a5;
   border: 2px solid #a97c46;
   border-radius: 3px;
@@ -370,9 +369,17 @@ button:focus-visible {
   justify-content: center;
 }
 
+.inventory-grid .inventory-slot {
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 68px;
+  padding: 5px 2px 3px;
+  gap: 3px;
+}
+
 .game-panel button.inventory-slot {
   font-size: 1em;
-  padding: 0;
+  padding: 5px 2px 3px;
   border-bottom-width: 2px;
 }
 
@@ -392,19 +399,51 @@ button:focus-visible {
 }
 
 .inventory-slot-icon {
-  width: 75%;
-  height: 75%;
+  width: 26px;
+  height: 26px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  flex-shrink: 0;
+}
+
+.inventory-slot-name {
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-size: 0.48em;
+  line-height: 1.15;
+  text-align: center;
+  color: #3b2411;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .inventory-slot-count {
   position: absolute;
   right: 2px;
-  bottom: 1px;
+  top: 1px;
   font-size: 0.6em;
   font-weight: 700;
   color: #3b2411;
+}
+
+.hud-hotbar {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35em;
+}
+
+.hud-hotbar .inventory-slot {
+  width: 38px;
+  height: 38px;
+}
+
+.hud-hotbar .inventory-slot-icon {
+  width: 24px;
+  height: 24px;
 }
 
 .reveal-stage {

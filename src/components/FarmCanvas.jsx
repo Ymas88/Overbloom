@@ -11,6 +11,7 @@ import {
   SWORD_SWING_DURATION,
 } from '../canvas/sprites'
 import { spawnSlime, updateSlime, hitsTarget, isDonePopping, SPAWN_INTERVAL, MAX_SLIMES } from '../game/slimes'
+import { getSwordSpeedMultiplier } from '../game/swords'
 
 const PLAYER_SPEED = 90 // virtual px per second
 const MARGIN = 8
@@ -176,11 +177,13 @@ function FarmCanvas({
           if (dx < 0) player.facing = 'left'
           else if (dx > 0) player.facing = 'right'
 
-          const nx = player.x + dx * PLAYER_SPEED * dt
+          const speed = PLAYER_SPEED * getSwordSpeedMultiplier(equippedSwordIdRef.current)
+
+          const nx = player.x + dx * speed * dt
           if (!collides(nx, player.y, layout.solids)) {
             player.x = Math.max(MARGIN, Math.min(WORLD_WIDTH - MARGIN, nx))
           }
-          const ny = player.y + dy * PLAYER_SPEED * dt
+          const ny = player.y + dy * speed * dt
           if (!collides(player.x, ny, layout.solids)) {
             player.y = Math.max(MARGIN, Math.min(WORLD_HEIGHT - MARGIN, ny))
           }

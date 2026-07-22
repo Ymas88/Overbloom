@@ -48,8 +48,25 @@ export const LOOTBOX_SWORDS = [
 
 export const SWORDS = [...SHOP_SWORDS, ...LOOTBOX_SWORDS]
 
+// Shop swords don't carry a rarity tag (they're a flat price list, not part
+// of the lootbox tiers), so they default to common — the smallest buff,
+// matching their plainer look.
+export const SPEED_MULTIPLIER_BY_RARITY = {
+  common: 1.05,
+  uncommon: 1.1,
+  rare: 1.15,
+  epic: 1.2,
+  legendary: 1.3,
+}
+
 export function getSword(swordId) {
   return SWORDS.find((s) => s.id === swordId) ?? null
+}
+
+export function getSwordSpeedMultiplier(swordId) {
+  const sword = getSword(swordId)
+  if (!sword) return 1
+  return SPEED_MULTIPLIER_BY_RARITY[sword.rarity ?? 'common']
 }
 
 // A sword's individual draw chance is its rarity tier's weight split evenly

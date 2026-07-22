@@ -13,7 +13,7 @@ import { getHealth, setHealth, MAX_HEALTH } from './storage/health'
 import { getClaimedQuests, claimQuest } from './storage/quests'
 import { LOOT_BOX_PRICE, SWORD_BOX_PRICE } from './game/shop'
 import { drawRandomCrop, getCropOrDefault, RARITIES } from './game/crops'
-import { drawRandomSword, SWORD_RARITIES } from './game/swords'
+import { drawRandomSword, SWORD_RARITIES, getSword } from './game/swords'
 import { generateQuestion } from './game/mathQuiz'
 import { getQuestStatus, QUEST_REWARD } from './game/quests'
 import FarmCanvas from './components/FarmCanvas'
@@ -174,6 +174,20 @@ function App() {
       <div className="hud-health">
         <div className="hud-health-bar" style={{ width: `${(health / MAX_HEALTH) * 100}%` }} />
         <span className="hud-health-label">{health}/{MAX_HEALTH} HP</span>
+      </div>
+
+      <div className="hud-hotbar">
+        <div
+          className={`inventory-slot${equippedSwordId ? '' : ' empty'}`}
+          title={equippedSwordId ? getSword(equippedSwordId)?.name : 'No sword equipped'}
+        >
+          {equippedSwordId && (
+            <img src={`/sprites/swords/${equippedSwordId}.png`} alt="" className="inventory-slot-icon" />
+          )}
+        </div>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="inventory-slot empty" title="Empty — reserved for a future item" />
+        ))}
       </div>
 
       {quiz && <MathQuizPanel question={quiz} onAnswer={handleQuizAnswer} />}

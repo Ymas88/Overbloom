@@ -43,6 +43,7 @@ function InventoryPanel({
           return (
             <div key={crop.id} className="inventory-slot" title={`${label} — ${count} owned`}>
               <img src={`/sprites/crops/${crop.id}.png`} alt={label} className="inventory-slot-icon" />
+              <span className="inventory-slot-name">{crop.name}</span>
               <span className="inventory-slot-count">{count}</span>
             </div>
           )
@@ -72,6 +73,7 @@ function InventoryPanel({
               onClick={() => onEquipSword(equipped ? null : sword.id)}
             >
               <img src={`/sprites/swords/${sword.id}.png`} alt={sword.name} className="inventory-slot-icon" />
+              <span className="inventory-slot-name">{sword.name}</span>
             </button>
           )
         })}
