@@ -1,10 +1,10 @@
 const DAY_MS = 24 * 60 * 60 * 1000
 
 const STAGE_THRESHOLDS = [
-  { stage: 4, minMinutes: 600 },
-  { stage: 3, minMinutes: 300 },
-  { stage: 2, minMinutes: 120 },
-  { stage: 1, minMinutes: 30 },
+  { stage: 4, minMinutes: 120 },
+  { stage: 3, minMinutes: 60 },
+  { stage: 2, minMinutes: 24 },
+  { stage: 1, minMinutes: 6 },
 ]
 
 function minutesSince(sessions, now, days) {
