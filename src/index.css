@@ -132,6 +132,22 @@ button:focus-visible {
   letter-spacing: 0.02em;
 }
 
+.game-panel details {
+  margin: 1.4rem 0 0;
+}
+
+.game-panel summary {
+  cursor: pointer;
+  color: #5c3a1c;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 0.65em;
+  letter-spacing: 0.02em;
+}
+
+.game-panel details ul {
+  margin-top: 0.6rem;
+}
+
 .game-panel p {
   color: #5c3a1c;
 }

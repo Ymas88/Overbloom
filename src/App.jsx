@@ -6,8 +6,12 @@ import { getCurrency, addCurrency } from './storage/currency'
 import { getLootBoxCount, addLootBox, removeLootBox } from './storage/lootboxes'
 import { getSeeds, addSeed } from './storage/seeds'
 import { getSubjectCrops, setSubjectCrop } from './storage/subjectCrops'
-import { LOOT_BOX_PRICE } from './game/shop'
+import { getSwordBoxCount, addSwordBox, removeSwordBox } from './storage/swordboxes'
+import { getSwords, addSword } from './storage/swords'
+import { getEquippedSword, setEquippedSword } from './storage/equippedSword'
+import { LOOT_BOX_PRICE, SWORD_BOX_PRICE } from './game/shop'
 import { drawRandomCrop, getCropOrDefault, RARITIES } from './game/crops'
+import { drawRandomSword, SWORD_RARITIES } from './game/swords'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
@@ -23,7 +27,10 @@ function App() {
   const [lootBoxes, setLootBoxes] = useState(0)
   const [seeds, setSeeds] = useState({})
   const [subjectCrops, setSubjectCrops] = useState({})
-  const [revealCrop, setRevealCrop] = useState(null)
+  const [swordBoxes, setSwordBoxes] = useState(0)
+  const [ownedSwords, setOwnedSwords] = useState({})
+  const [equippedSwordId, setEquippedSwordId] = useState(null)
+  const [reveal, setReveal] = useState(null) // {kind:'crop'|'sword', id, name, rarity}
   const [harvestSignal, setHarvestSignal] = useState(0)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
@@ -35,17 +42,20 @@ function App() {
     setLootBoxes(getLootBoxCount())
     setSeeds(getSeeds())
     setSubjectCrops(getSubjectCrops())
+    setSwordBoxes(getSwordBoxCount())
+    setOwnedSwords(getSwords())
+    setEquippedSwordId(getEquippedSword())
   }, [])
 
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key === 'Escape' && revealCrop) setRevealCrop(null)
+      if (e.key === 'Escape' && reveal) setReveal(null)
       else if (e.key === 'Escape' && interaction) setInteraction(null)
-      if ((e.key === 'i' || e.key === 'I') && !interaction && !revealCrop) setInteraction({ type: 'inventory' })
+      if ((e.key === 'i' || e.key === 'I') && !interaction && !reveal) setInteraction({ type: 'inventory' })
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [interaction, revealCrop])
+  }, [interaction, reveal])
 
   function handleAddSubject(name) {
     setSubjects(addSubject(name))
@@ -76,7 +86,32 @@ function App() {
     setLootBoxes(removeLootBox())
     setSeeds(addSeed(crop.id))
     setInteraction(null)
-    setRevealCrop(crop)
+    setReveal({ kind: 'crop', ...crop })
+  }
+
+  function handleBuySwordBox() {
+    if (currency < SWORD_BOX_PRICE) return
+    setCurrency(addCurrency(-SWORD_BOX_PRICE))
+    setSwordBoxes(addSwordBox())
+  }
+
+  function handleOpenSwordBox() {
+    if (swordBoxes < 1) return
+    const sword = drawRandomSword()
+    setSwordBoxes(removeSwordBox())
+    setOwnedSwords(addSword(sword.id))
+    setInteraction(null)
+    setReveal({ kind: 'sword', ...sword })
+  }
+
+  function handleBuySword(swordId, price) {
+    if (currency < price) return
+    setCurrency(addCurrency(-price))
+    setOwnedSwords(addSword(swordId))
+  }
+
+  function handleEquipSword(swordId) {
+    setEquippedSwordId(setEquippedSword(swordId))
   }
 
   function handleAssignCrop(subjectId, cropId) {
@@ -97,8 +132,9 @@ function App() {
         sessions={sessions}
         harvests={harvests}
         subjectCrops={subjectCrops}
-        paused={interaction !== null || revealCrop !== null}
+        paused={interaction !== null || reveal !== null}
         harvestSignal={harvestSignal}
+        equippedSwordId={equippedSwordId}
         onInteract={setInteraction}
       />
 
@@ -109,15 +145,36 @@ function App() {
           currency={currency}
           lootBoxes={lootBoxes}
           seeds={seeds}
+          swordBoxes={swordBoxes}
+          ownedSwords={ownedSwords}
+          equippedSwordId={equippedSwordId}
           onOpenLootBox={handleOpenLootBox}
+          onOpenSwordBox={handleOpenSwordBox}
+          onEquipSword={handleEquipSword}
           onClose={closePanel}
         />
       )}
 
-      {revealCrop && <LootRevealPanel crop={revealCrop} onClose={() => setRevealCrop(null)} />}
+      {reveal && (
+        <LootRevealPanel
+          title={reveal.kind === 'sword' ? 'Swordbox Opened!' : 'Seedbox Opened!'}
+          iconSrc={`/sprites/${reveal.kind === 'sword' ? 'swords' : 'crops'}/${reveal.id}.png`}
+          name={reveal.name}
+          rarityLabel={
+            reveal.kind === 'sword' ? SWORD_RARITIES[reveal.rarity].label : RARITIES[reveal.rarity].label
+          }
+          onClose={() => setReveal(null)}
+        />
+      )}
 
       {interaction?.type === 'shop' && (
-        <ShopPanel currency={currency} onBuyLootBox={handleBuyLootBox} onClose={closePanel} />
+        <ShopPanel
+          currency={currency}
+          onBuyLootBox={handleBuyLootBox}
+          onBuySwordBox={handleBuySwordBox}
+          onBuySword={handleBuySword}
+          onClose={closePanel}
+        />
       )}
 
       {interaction?.type === 'farmhouse' && (

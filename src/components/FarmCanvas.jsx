@@ -7,6 +7,7 @@ import {
   WORLD_WIDTH,
   WORLD_HEIGHT,
   HARVEST_ANIM_DURATION,
+  SWORD_SWING_DURATION,
 } from '../canvas/sprites'
 
 const PLAYER_SPEED = 90 // virtual px per second
@@ -50,7 +51,16 @@ function cameraFor(player) {
   }
 }
 
-function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harvestSignal, onInteract }) {
+function FarmCanvas({
+  subjects,
+  sessions,
+  harvests,
+  subjectCrops,
+  paused,
+  harvestSignal,
+  equippedSwordId,
+  onInteract,
+}) {
   const canvasRef = useRef(null)
   const playerRef = useRef({ x: VIEWPORT_WIDTH / 2, y: VIEWPORT_HEIGHT - 32, facing: 'right' })
   const keysRef = useRef(new Set())
@@ -58,6 +68,9 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harves
   const onInteractRef = useRef(onInteract)
   const harvestingRef = useRef(false)
   const harvestClockRef = useRef(0)
+  const swingingRef = useRef(false)
+  const swingClockRef = useRef(0)
+  const equippedSwordIdRef = useRef(equippedSwordId)
 
   useEffect(() => {
     pausedRef.current = paused
@@ -67,6 +80,10 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harves
   useEffect(() => {
     onInteractRef.current = onInteract
   }, [onInteract])
+
+  useEffect(() => {
+    equippedSwordIdRef.current = equippedSwordId
+  }, [equippedSwordId])
 
   // Each harvest bumps this counter — kick off the crouch-and-pop animation
   // whenever it changes, regardless of the new value.
@@ -98,6 +115,20 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harves
       window.removeEventListener('keyup', handleKeyUp)
     }
   }, [subjects])
+
+  // Clicking (or tapping a touchpad) the canvas swings the equipped sword —
+  // purely a visual flourish, gated on having one equipped and not being
+  // mid-panel so it doesn't fire behind an open popup.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    function handleClick() {
+      if (pausedRef.current || !equippedSwordIdRef.current) return
+      swingingRef.current = true
+      swingClockRef.current = 0
+    }
+    canvas.addEventListener('mousedown', handleClick)
+    return () => canvas.removeEventListener('mousedown', handleClick)
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -156,6 +187,14 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harves
         }
       }
 
+      if (swingingRef.current) {
+        swingClockRef.current += dt
+        if (swingClockRef.current >= SWORD_SWING_DURATION) {
+          swingingRef.current = false
+          swingClockRef.current = 0
+        }
+      }
+
       const camera = cameraFor(player)
 
       ctx.save()
@@ -169,6 +208,9 @@ function FarmCanvas({ subjects, sessions, harvests, subjectCrops, paused, harves
         idleClock: now / 1000,
         harvesting: harvestingRef.current,
         harvestClock: harvestClockRef.current,
+        equippedSwordId: equippedSwordIdRef.current,
+        swinging: swingingRef.current,
+        swingClock: swingClockRef.current,
       })
 
       const nearby = pausedRef.current ? null : findNearbyTarget(targets, player.x, player.y)

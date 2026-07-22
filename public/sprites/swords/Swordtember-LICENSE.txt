@@ -1,0 +1,9 @@
+"Hedgy's Swordtember 2020" by TheWiseHedgehog
+https://thewisehedgehog.itch.io/hs2020
+
+License: Creative Commons Attribution 4.0 International (CC-BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+30 individual sword sprites (32x32) were cropped from the pack's single
+sprite sheet (File.png) into public/sprites/swords/*.png for use in this
+project. Attribution: art by TheWiseHedgehog.

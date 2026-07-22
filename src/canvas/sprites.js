@@ -4,6 +4,7 @@ import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
 import { drawDungeonTile, DUNGEON_TILE_INDEX } from './dungeonTileset'
 import { drawGrowthIcon, drawWiltedIcon } from './growthSprites'
 import { drawCropIcon } from './cropSprites'
+import { drawSwordIcon } from './swordSprites'
 
 // Virtual (internal) canvas resolution: a 20x14-tile window onto the world,
 // scaled up with CSS to fill its container (image smoothing disabled), so
@@ -200,6 +201,21 @@ function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false, cropId = null
 // Exported so FarmCanvas can time the animation clock the same way.
 export const HARVEST_ANIM_DURATION = 0.45
 
+// How long a sword swing plays for, in seconds. Exported so FarmCanvas can
+// time its click-triggered animation clock the same way.
+export const SWORD_SWING_DURATION = 0.25
+
+// The sword icons are drawn diagonally with the hilt near their
+// bottom-left corner — pivoting there (instead of the icon's top-left) is
+// what makes rotating it read as a swing instead of the icon spinning
+// around its own center.
+const SWORD_SIZE = 15
+const SWORD_HILT_X = SWORD_SIZE * 0.22
+const SWORD_HILT_Y = SWORD_SIZE * 0.88
+const SWORD_REST_ANGLE = -0.3
+const SWORD_SWING_FROM = -1.1
+const SWORD_SWING_TO = 0.85
+
 // Top-down character from the Tiny Farm tileset. x,y = feet position.
 // The pack only has one static pose (facing the camera), so left/right
 // movement mirrors it horizontally; up/down movement keeps it as-is since
@@ -214,7 +230,17 @@ function drawPlayer(
   ctx,
   x,
   y,
-  { facing = 'right', walking = false, walkClock = 0, idleClock = 0, harvesting = false, harvestClock = 0 } = {}
+  {
+    facing = 'right',
+    walking = false,
+    walkClock = 0,
+    idleClock = 0,
+    harvesting = false,
+    harvestClock = 0,
+    equippedSwordId = null,
+    swinging = false,
+    swingClock = 0,
+  } = {}
 ) {
   let bob
   let squashX = 1
@@ -241,6 +267,22 @@ function drawPlayer(
   ctx.translate(Math.round(x), Math.round(drawY))
   ctx.scale(mirror * squashX, squashY)
   drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, -TILE)
+
+  if (equippedSwordId) {
+    const swingT = swinging ? Math.min(swingClock / SWORD_SWING_DURATION, 1) : 0
+    const eased = 1 - (1 - swingT) * (1 - swingT)
+    const angle = swinging ? SWORD_SWING_FROM + eased * (SWORD_SWING_TO - SWORD_SWING_FROM) : SWORD_REST_ANGLE
+
+    // Pivoting at the hand (not the icon's corner) so the blade swings
+    // like it's gripped there, in the same transformed space as the body
+    // so it mirrors and bobs/squashes along with it.
+    ctx.save()
+    ctx.translate(TILE / 2 - 3, -TILE / 2 - 1)
+    ctx.rotate(angle)
+    drawSwordIcon(ctx, equippedSwordId, -SWORD_HILT_X, -SWORD_HILT_Y, SWORD_SIZE)
+    ctx.restore()
+  }
+
   ctx.restore()
 }
 
