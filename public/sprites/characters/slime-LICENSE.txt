@@ -1,0 +1,11 @@
+"Mystic Woods" (free version) by Game Endeavor
+https://game-endeavor.itch.io/mystic-woods
+
+License: Free version terms (as stated in the pack's read_me.txt)
+  - Usable only in non-commercial projects.
+  - Modification allowed.
+  - Redistribution/resale not allowed, even if modified.
+
+overbloom is a free, non-commercial personal project with no
+monetization, so this is within the license's terms. slime.png is used
+unmodified for the cave zone's slime enemy sprite and animations.

@@ -9,15 +9,18 @@ import { getSubjectCrops, setSubjectCrop } from './storage/subjectCrops'
 import { getSwordBoxCount, addSwordBox, removeSwordBox } from './storage/swordboxes'
 import { getSwords, addSword } from './storage/swords'
 import { getEquippedSword, setEquippedSword } from './storage/equippedSword'
+import { getHealth, setHealth, MAX_HEALTH } from './storage/health'
 import { LOOT_BOX_PRICE, SWORD_BOX_PRICE } from './game/shop'
 import { drawRandomCrop, getCropOrDefault, RARITIES } from './game/crops'
 import { drawRandomSword, SWORD_RARITIES } from './game/swords'
+import { generateQuestion } from './game/mathQuiz'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
 import InventoryPanel from './components/InventoryPanel'
 import ShopPanel from './components/ShopPanel'
 import LootRevealPanel from './components/LootRevealPanel'
+import MathQuizPanel from './components/MathQuizPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -32,6 +35,8 @@ function App() {
   const [equippedSwordId, setEquippedSwordId] = useState(null)
   const [reveal, setReveal] = useState(null) // {kind:'crop'|'sword', id, name, rarity}
   const [harvestSignal, setHarvestSignal] = useState(0)
+  const [health, setHealthState] = useState(MAX_HEALTH)
+  const [quiz, setQuiz] = useState(null)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
@@ -45,17 +50,19 @@ function App() {
     setSwordBoxes(getSwordBoxCount())
     setOwnedSwords(getSwords())
     setEquippedSwordId(getEquippedSword())
+    setHealthState(getHealth())
   }, [])
 
   useEffect(() => {
     function handleKeyDown(e) {
+      if (quiz) return
       if (e.key === 'Escape' && reveal) setReveal(null)
       else if (e.key === 'Escape' && interaction) setInteraction(null)
       if ((e.key === 'i' || e.key === 'I') && !interaction && !reveal) setInteraction({ type: 'inventory' })
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [interaction, reveal])
+  }, [interaction, reveal, quiz])
 
   function handleAddSubject(name) {
     setSubjects(addSubject(name))
@@ -72,6 +79,20 @@ function App() {
     setHarvests(setHarvestedAt(subjectId, Date.now()))
     setHarvestSignal((n) => n + 1)
     setInteraction(null)
+  }
+
+  function handleSlimeHit() {
+    if (quiz) return
+    setQuiz(generateQuestion())
+  }
+
+  function handleQuizAnswer(correct) {
+    if (correct) {
+      setCurrency(addCurrency(1))
+    } else {
+      setHealthState(setHealth(health - 1))
+    }
+    setQuiz(null)
   }
 
   function handleBuyLootBox() {
@@ -132,13 +153,20 @@ function App() {
         sessions={sessions}
         harvests={harvests}
         subjectCrops={subjectCrops}
-        paused={interaction !== null || reveal !== null}
+        paused={interaction !== null || reveal !== null || quiz !== null}
         harvestSignal={harvestSignal}
         equippedSwordId={equippedSwordId}
         onInteract={setInteraction}
+        onSlimeHit={handleSlimeHit}
       />
 
       <div className="hud-coins">{currency} coins</div>
+      <div className="hud-health">
+        <div className="hud-health-bar" style={{ width: `${(health / MAX_HEALTH) * 100}%` }} />
+        <span className="hud-health-label">{health}/{MAX_HEALTH} HP</span>
+      </div>
+
+      {quiz && <MathQuizPanel question={quiz} onAnswer={handleQuizAnswer} />}
 
       {interaction?.type === 'inventory' && (
         <InventoryPanel

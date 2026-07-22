@@ -132,6 +132,12 @@ export function computeLayout(plotCount) {
       { x: TILE * 14, y: FARM_HEIGHT + TILE * 13, kind: 'skull' },
       { x: TILE * 24, y: FARM_HEIGHT + TILE * 9, kind: 'skull' },
     ],
+    slimeSpawners: [
+      { x: TILE * 9, y: FARM_HEIGHT + TILE * 4 },
+      { x: TILE * 26, y: FARM_HEIGHT + TILE * 5 },
+      { x: TILE * 17, y: FARM_HEIGHT + TILE * 10 },
+      { x: TILE * 31, y: FARM_HEIGHT + TILE * 9 },
+    ],
   }
 }
 

@@ -6,9 +6,11 @@ import {
   VIEWPORT_HEIGHT,
   WORLD_WIDTH,
   WORLD_HEIGHT,
+  FARM_HEIGHT,
   HARVEST_ANIM_DURATION,
   SWORD_SWING_DURATION,
 } from '../canvas/sprites'
+import { spawnSlime, updateSlime, hitsTarget, isDonePopping, SPAWN_INTERVAL, MAX_SLIMES } from '../game/slimes'
 
 const PLAYER_SPEED = 90 // virtual px per second
 const MARGIN = 8
@@ -60,17 +62,21 @@ function FarmCanvas({
   harvestSignal,
   equippedSwordId,
   onInteract,
+  onSlimeHit,
 }) {
   const canvasRef = useRef(null)
   const playerRef = useRef({ x: VIEWPORT_WIDTH / 2, y: VIEWPORT_HEIGHT - 32, facing: 'right' })
   const keysRef = useRef(new Set())
   const pausedRef = useRef(paused)
   const onInteractRef = useRef(onInteract)
+  const onSlimeHitRef = useRef(onSlimeHit)
   const harvestingRef = useRef(false)
   const harvestClockRef = useRef(0)
   const swingingRef = useRef(false)
   const swingClockRef = useRef(0)
   const equippedSwordIdRef = useRef(equippedSwordId)
+  const slimesRef = useRef([])
+  const spawnClockRef = useRef(0)
 
   useEffect(() => {
     pausedRef.current = paused
@@ -80,6 +86,10 @@ function FarmCanvas({
   useEffect(() => {
     onInteractRef.current = onInteract
   }, [onInteract])
+
+  useEffect(() => {
+    onSlimeHitRef.current = onSlimeHit
+  }, [onSlimeHit])
 
   useEffect(() => {
     equippedSwordIdRef.current = equippedSwordId
@@ -187,6 +197,29 @@ function FarmCanvas({
         }
       }
 
+      // Slimes only exist in the cave zone — they don't spawn, move, or
+      // get drawn at all while the player is up in the farm.
+      if (!pausedRef.current && player.y >= FARM_HEIGHT) {
+        spawnClockRef.current += dt
+        if (spawnClockRef.current >= SPAWN_INTERVAL) {
+          spawnClockRef.current = 0
+          if (slimesRef.current.length < MAX_SLIMES && layout.slimeSpawners.length > 0) {
+            const spawner = layout.slimeSpawners[Math.floor(Math.random() * layout.slimeSpawners.length)]
+            slimesRef.current.push(spawnSlime(spawner.x, spawner.y))
+          }
+        }
+
+        for (const slime of slimesRef.current) {
+          updateSlime(slime, dt, player.x, player.y)
+          if (hitsTarget(slime, player.x, player.y)) {
+            slime.popping = true
+            slime.popClock = 0
+            onSlimeHitRef.current?.()
+          }
+        }
+        slimesRef.current = slimesRef.current.filter((slime) => !isDonePopping(slime))
+      }
+
       player.walkClock = walking ? (player.walkClock ?? 0) + dt : 0
 
       if (harvestingRef.current) {
@@ -222,6 +255,14 @@ function FarmCanvas({
         swinging: swingingRef.current,
         swingClock: swingClockRef.current,
       })
+
+      for (const slime of slimesRef.current) {
+        drawSprite(ctx, 'slime', slime.x, slime.y, 0, {
+          hopClock: slime.hopClock,
+          popping: slime.popping,
+          popClock: slime.popClock,
+        })
+      }
 
       const nearby = pausedRef.current ? null : findNearbyTarget(targets, player.x, player.y)
       if (nearby) {

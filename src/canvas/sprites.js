@@ -6,6 +6,7 @@ import { drawDungeon2Tile, DUNGEON2_TILE_INDEX } from './dungeon2Tileset'
 import { drawGrowthIcon, drawWiltedIcon } from './growthSprites'
 import { drawCropIcon } from './cropSprites'
 import { drawSwordIcon } from './swordSprites'
+import { drawSlime } from './slimeSprites'
 
 // Virtual (internal) canvas resolution: a 20x14-tile window onto the world,
 // scaled up with CSS to fill its container (image smoothing disabled), so
@@ -391,6 +392,8 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
       return drawRock(ctx, x, y, opts)
     case 'caveDecor':
       return drawCaveDecor(ctx, x, y, opts)
+    case 'slime':
+      return drawSlime(ctx, x, y, opts.size ?? TILE * 1.5, opts)
     case 'tree':
       return drawTree(ctx, x, y, opts)
     case 'animal':

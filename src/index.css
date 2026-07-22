@@ -95,6 +95,37 @@ button:focus-visible {
   color: #3b2411;
 }
 
+.hud-health {
+  position: absolute;
+  top: 3.2rem;
+  right: 0.75rem;
+  width: 160px;
+  height: 1.4em;
+  background: #3b2411;
+  border: 3px solid #7a4b26;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hud-health-bar {
+  position: absolute;
+  inset: 0;
+  background: #c0392b;
+  transition: width 0.2s ease-out;
+}
+
+.hud-health-label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 0.6em;
+  color: #f6e3bd;
+}
+
 .game-panel {
   position: absolute;
   top: 50%;
