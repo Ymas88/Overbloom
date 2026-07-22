@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { drawScene, computeLayout, getInteractionTargets, findNearbyTarget } from '../canvas/scene'
+import { drawScene, computeLayout, getInteractionTargets, findNearbyTarget, PORTAL_RANGE } from '../canvas/scene'
 import {
   drawSprite,
   VIEWPORT_WIDTH,
@@ -174,6 +174,16 @@ function FarmCanvas({
           if (!collides(player.x, ny, layout.solids)) {
             player.y = Math.max(MARGIN, Math.min(WORLD_HEIGHT - MARGIN, ny))
           }
+        }
+      }
+
+      if (!pausedRef.current) {
+        const portal = layout.portals.find(
+          (p) => Math.hypot(p.x - player.x, p.y - player.y) < PORTAL_RANGE
+        )
+        if (portal) {
+          player.x = portal.to.x
+          player.y = portal.to.y
         }
       }
 

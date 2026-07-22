@@ -1,12 +1,21 @@
-import { drawSprite, TILE, WORLD_WIDTH, WORLD_HEIGHT } from './sprites'
+import { drawSprite, TILE, WORLD_WIDTH, WORLD_HEIGHT, FARM_HEIGHT } from './sprites'
 import { getGrowthStage } from '../game/growth'
 
 // The original farm layout was designed for a 20x14-tile viewport. The
 // world is now bigger than that (the camera scrolls), but the farmhouse,
 // plots, and rock stay anchored to this original "core" area — the extra
-// space is new field to the right and below it.
+// space is new field to the right and below it, and the cave zone below
+// that (past FARM_HEIGHT) reached through the portal.
 const CORE_WIDTH = TILE * 20
 const CORE_HEIGHT = TILE * 14
+
+// The portal sits near the bottom of the farm and drops you just past the
+// top of the cave zone; the return portal does the reverse. Each arrival
+// point is offset from its portal so stepping through doesn't immediately
+// trigger the other one.
+const FARM_PORTAL = { x: CORE_WIDTH + TILE * 6, y: FARM_HEIGHT - TILE * 2 }
+const CAVE_PORTAL = { x: TILE * 6, y: FARM_HEIGHT + TILE * 3 }
+export const PORTAL_RANGE = 11
 
 const FARMHOUSE_X = TILE * 1
 const FARMHOUSE_Y = TILE * 1
@@ -92,15 +101,28 @@ export function computeLayout(plotCount) {
       { x: WORLD_WIDTH - TILE * 1, y: TILE * 8 },
       { x: WORLD_WIDTH - TILE * 1, y: TILE * 14 },
       { x: WORLD_WIDTH - TILE * 1, y: TILE * 20, small: true },
-      { x: CORE_WIDTH + TILE * 3, y: WORLD_HEIGHT - TILE * 1 },
-      { x: CORE_WIDTH + TILE * 9, y: WORLD_HEIGHT - TILE * 1, small: true },
-      { x: CORE_WIDTH + TILE * 15, y: WORLD_HEIGHT - TILE * 1 },
-      { x: TILE * 4, y: WORLD_HEIGHT - TILE * 1 },
-      { x: TILE * 10, y: WORLD_HEIGHT - TILE * 1, small: true },
+      { x: CORE_WIDTH + TILE * 3, y: FARM_HEIGHT - TILE * 1 },
+      { x: CORE_WIDTH + TILE * 9, y: FARM_HEIGHT - TILE * 1, small: true },
+      { x: CORE_WIDTH + TILE * 15, y: FARM_HEIGHT - TILE * 1 },
+      { x: TILE * 4, y: FARM_HEIGHT - TILE * 1 },
+      { x: TILE * 10, y: FARM_HEIGHT - TILE * 1, small: true },
     ],
     animals: [
       { x: FARMHOUSE_X + FARMHOUSE_W + 20, y: FARMHOUSE_Y + FARMHOUSE_H + 12, kind: 'sheep' },
       { x: CORE_WIDTH + TILE * 4, y: CORE_HEIGHT - TILE * 3, kind: 'cow' },
+    ],
+    caveRocks: [
+      { x: TILE * 3, y: FARM_HEIGHT + TILE * 2 },
+      { x: TILE * 12, y: FARM_HEIGHT + TILE * 5 },
+      { x: TILE * 22, y: FARM_HEIGHT + TILE * 3 },
+      { x: TILE * 28, y: FARM_HEIGHT + TILE * 8 },
+      { x: TILE * 8, y: FARM_HEIGHT + TILE * 11 },
+      { x: TILE * 20, y: FARM_HEIGHT + TILE * 11, large: true },
+      { x: WORLD_WIDTH - TILE * 4, y: WORLD_HEIGHT - TILE * 3 },
+    ],
+    portals: [
+      { x: FARM_PORTAL.x, y: FARM_PORTAL.y, to: { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y + 22 } },
+      { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y, to: { x: FARM_PORTAL.x, y: FARM_PORTAL.y + 22 } },
     ],
   }
 }
@@ -153,6 +175,14 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops
 
   for (const rock of layout.rocks) {
     drawSprite(ctx, 'rock', rock.x, rock.y)
+  }
+
+  for (const rock of layout.caveRocks) {
+    drawSprite(ctx, 'rock', rock.x, rock.y, 0, { large: rock.large })
+  }
+
+  for (const portal of layout.portals) {
+    drawSprite(ctx, 'portal', portal.x, portal.y)
   }
 
   drawSprite(ctx, 'rockyOutcrop', layout.rock.x, layout.rock.y)

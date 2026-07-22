@@ -11,4 +11,9 @@ export const drawDungeonTile = sheet.drawTile
 
 export const DUNGEON_TILE_INDEX = {
   SHOPKEEPER: 85,
+  CAVE_FLOOR: 0,
+  CAVE_FLOOR_RUBBLE: 1,
+  CAVE_FLOOR_RUBBLE_2: 2,
+  CAVE_WALL: 40,
+  PORTAL_ARCH: 10,
 }

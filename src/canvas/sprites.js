@@ -17,10 +17,15 @@ export const VIEWPORT_HEIGHT = TILE * VIEWPORT_TILES_Y
 
 // The full walkable world is bigger than the viewport — the camera scrolls
 // to follow the player, so most of it is off-screen at any given moment.
+// The world is two zones stacked vertically: the farm (grass) on top, and
+// a cave reached through a portal below it — FARM_TILES_Y marks where one
+// ends and the other begins.
 export const WORLD_TILES_X = 34
-export const WORLD_TILES_Y = 22
+export const FARM_TILES_Y = 22
+export const WORLD_TILES_Y = 36
 export const WORLD_WIDTH = TILE * WORLD_TILES_X
 export const WORLD_HEIGHT = TILE * WORLD_TILES_Y
+export const FARM_HEIGHT = TILE * FARM_TILES_Y
 
 // Crisp pixel rect: rounds to whole virtual pixels so edges never
 // anti-alias, regardless of how the canvas is scaled by CSS.
@@ -37,8 +42,9 @@ function hash(tx, ty) {
   return s - Math.floor(s)
 }
 
-// Grass field built from the Tiny Town tileset, covering the full world:
-// mostly plain grass, with occasional subtly-textured or flowering tiles
+// Grass field built from the Tiny Town tileset for the farm zone, and a
+// stone cave floor built from Tiny Dungeon for the zone below it (reached
+// through the portal) — both mostly plain with occasional textured tiles
 // scattered in (deterministic, not random, so it doesn't shimmer between
 // renders). Only draws tiles within the camera's view (plus a 1-tile
 // margin), since the world is bigger than what's ever on screen at once.
@@ -47,17 +53,28 @@ function drawGround(ctx, camera) {
   const endTx = Math.min(WORLD_TILES_X, Math.ceil((camera.x + VIEWPORT_WIDTH) / TILE) + 1)
   const startTy = Math.max(0, Math.floor(camera.y / TILE) - 1)
   const endTy = Math.min(WORLD_TILES_Y, Math.ceil((camera.y + VIEWPORT_HEIGHT) / TILE) + 1)
+  const farmTy = FARM_HEIGHT / TILE
 
   for (let ty = startTy; ty < endTy; ty++) {
     for (let tx = startTx; tx < endTx; tx++) {
       const n = hash(tx, ty)
-      const index =
-        n > 0.94
-          ? TOWN_TILE_INDEX.GRASS_FLOWERS
-          : n > 0.75
-            ? TOWN_TILE_INDEX.GRASS_TEXTURED
-            : TOWN_TILE_INDEX.GRASS
-      drawTownTile(ctx, index, tx * TILE, ty * TILE)
+      if (ty < farmTy) {
+        const index =
+          n > 0.94
+            ? TOWN_TILE_INDEX.GRASS_FLOWERS
+            : n > 0.75
+              ? TOWN_TILE_INDEX.GRASS_TEXTURED
+              : TOWN_TILE_INDEX.GRASS
+        drawTownTile(ctx, index, tx * TILE, ty * TILE)
+      } else {
+        const index =
+          n > 0.92
+            ? DUNGEON_TILE_INDEX.CAVE_FLOOR_RUBBLE_2
+            : n > 0.8
+              ? DUNGEON_TILE_INDEX.CAVE_FLOOR_RUBBLE
+              : DUNGEON_TILE_INDEX.CAVE_FLOOR
+        drawDungeonTile(ctx, index, tx * TILE, ty * TILE)
+      }
     }
   }
 }
@@ -155,6 +172,15 @@ function drawRockyOutcrop(ctx, x, y) {
   const mouthH = h - 16
   px(ctx, x + (w - mouthW) / 2, y + h - mouthH - 6, mouthW, mouthH, palette.mine.dark)
   px(ctx, x + (w - mouthW) / 2 + 3, y + h - mouthH - 3, mouthW - 6, mouthH - 6, palette.mine.mid)
+}
+
+// A mystical gateway between the farm and the cave zone: stone wall tiles
+// flanking a dark archway (Tiny Dungeon), scaled up for presence. x,y =
+// ground-level anchor, bottom-center — same convention as drawScaledTile.
+function drawPortal(ctx, x, y) {
+  drawDungeonTile(ctx, DUNGEON_TILE_INDEX.CAVE_WALL, x - TILE * 1.5, y - TILE * 2, TILE)
+  drawDungeonTile(ctx, DUNGEON_TILE_INDEX.CAVE_WALL, x + TILE * 0.5, y - TILE * 2, TILE)
+  drawScaledTile(ctx, DUNGEON_TILE_INDEX.PORTAL_ARCH, x, y, 1.6)
 }
 
 // A subject's plot: a fenced-in growing bed with a 3x3 grid of crop icons
@@ -337,6 +363,8 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
       return drawRockyOutcrop(ctx, x, y)
     case 'hut':
       return drawHut(ctx, x, y)
+    case 'portal':
+      return drawPortal(ctx, x, y)
     case 'shopkeeper':
       return drawShopkeeper(ctx, x, y)
     case 'bush':
