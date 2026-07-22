@@ -10,10 +10,12 @@ import { getSwordBoxCount, addSwordBox, removeSwordBox } from './storage/swordbo
 import { getSwords, addSword } from './storage/swords'
 import { getEquippedSword, setEquippedSword } from './storage/equippedSword'
 import { getHealth, setHealth, MAX_HEALTH } from './storage/health'
+import { getClaimedQuests, claimQuest } from './storage/quests'
 import { LOOT_BOX_PRICE, SWORD_BOX_PRICE } from './game/shop'
 import { drawRandomCrop, getCropOrDefault, RARITIES } from './game/crops'
 import { drawRandomSword, SWORD_RARITIES } from './game/swords'
 import { generateQuestion } from './game/mathQuiz'
+import { getQuestStatus, QUEST_REWARD } from './game/quests'
 import FarmCanvas from './components/FarmCanvas'
 import FarmhousePanel from './components/FarmhousePanel'
 import PlotPanel from './components/PlotPanel'
@@ -21,6 +23,7 @@ import InventoryPanel from './components/InventoryPanel'
 import ShopPanel from './components/ShopPanel'
 import LootRevealPanel from './components/LootRevealPanel'
 import MathQuizPanel from './components/MathQuizPanel'
+import QuestBoardPanel from './components/QuestBoardPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -37,6 +40,7 @@ function App() {
   const [harvestSignal, setHarvestSignal] = useState(0)
   const [health, setHealthState] = useState(MAX_HEALTH)
   const [quiz, setQuiz] = useState(null)
+  const [claimedQuests, setClaimedQuests] = useState([])
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
@@ -51,6 +55,7 @@ function App() {
     setOwnedSwords(getSwords())
     setEquippedSwordId(getEquippedSword())
     setHealthState(getHealth())
+    setClaimedQuests(getClaimedQuests())
   }, [])
 
   useEffect(() => {
@@ -93,6 +98,11 @@ function App() {
       setHealthState(setHealth(health - 1))
     }
     setQuiz(null)
+  }
+
+  function handleClaimQuest(questId) {
+    setCurrency(addCurrency(QUEST_REWARD))
+    setClaimedQuests(claimQuest(questId))
   }
 
   function handleBuyLootBox() {
@@ -167,6 +177,14 @@ function App() {
       </div>
 
       {quiz && <MathQuizPanel question={quiz} onAnswer={handleQuizAnswer} />}
+
+      {interaction?.type === 'questBoard' && (
+        <QuestBoardPanel
+          quests={getQuestStatus(sessions, harvests, claimedQuests)}
+          onClaim={handleClaimQuest}
+          onClose={closePanel}
+        />
+      )}
 
       {interaction?.type === 'inventory' && (
         <InventoryPanel

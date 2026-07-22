@@ -15,4 +15,5 @@ export const TOWN_TILE_INDEX = {
   WALL_STONE: 48,
   WALL_STONE_BASE: 60,
   DOOR_STONE: 89,
+  SIGN_BOARD: 83,
 }

@@ -36,6 +36,9 @@ const HUT_H = 52 // 20px roof + two 16px wall rows
 const HUT_DOOR_CENTER = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H - 6 }
 const SHOPKEEPER_POS = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H + 8 }
 
+const QUEST_BOARD = { x: TILE * 9, y: TILE * 11 }
+const QUEST_BOARD_CENTER = { x: QUEST_BOARD.x, y: QUEST_BOARD.y - 4 }
+
 const PLOT_SIZE = 56
 const PLOT_GAP = 10
 const PLOTS_ORIGIN_X = TILE * 6
@@ -66,6 +69,7 @@ export function computeLayout(plotCount) {
     { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H },
     { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H },
     { x: HUT_X, y: HUT_Y, width: HUT_W, height: HUT_H },
+    { x: QUEST_BOARD.x - 6, y: QUEST_BOARD.y - 14, width: 12, height: 14 },
   ]
 
   return {
@@ -73,6 +77,7 @@ export function computeLayout(plotCount) {
     rock: { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H, center: ROCK_CENTER },
     hut: { x: HUT_X, y: HUT_Y, center: HUT_DOOR_CENTER },
     shopkeeper: SHOPKEEPER_POS,
+    questBoard: { x: QUEST_BOARD.x, y: QUEST_BOARD.y, center: QUEST_BOARD_CENTER },
     plots,
     fence,
     solids,
@@ -147,6 +152,7 @@ export function getInteractionTargets(layout, subjects) {
   const targets = [
     { type: 'farmhouse', ...layout.farmhouse.center },
     { type: 'shop', ...layout.hut.center },
+    { type: 'questBoard', ...layout.questBoard.center },
   ]
 
   layout.plots.forEach((plot, i) => {
@@ -212,6 +218,7 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops
   drawSprite(ctx, 'farmhouse', layout.farmhouse.x, layout.farmhouse.y)
   drawSprite(ctx, 'hut', layout.hut.x, layout.hut.y)
   drawSprite(ctx, 'shopkeeper', layout.shopkeeper.x, layout.shopkeeper.y)
+  drawSprite(ctx, 'questBoard', layout.questBoard.x, layout.questBoard.y)
 
   for (const bush of layout.bushes) {
     drawSprite(ctx, 'bush', bush.x, bush.y, 0, { berry: bush.berry })

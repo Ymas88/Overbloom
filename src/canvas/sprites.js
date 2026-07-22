@@ -138,6 +138,13 @@ function drawCaveDecor(ctx, x, y, { kind = 'crystal' } = {}) {
   drawDungeon2Tile(ctx, index, x - TILE / 2, y - TILE / 2)
 }
 
+// The quest board: a single Tiny Town signpost tile, scaled up slightly
+// so it reads clearly as a readable object. x,y = ground-level anchor,
+// bottom-center — same convention as drawScaledTile.
+function drawQuestBoard(ctx, x, y) {
+  drawScaledTile(ctx, TOWN_TILE_INDEX.SIGN_BOARD, x, y, 1.3)
+}
+
 function drawAnimal(ctx, x, y, { kind = 'sheep' } = {}) {
   const index = { sheep: TILE_INDEX.SHEEP, cow: TILE_INDEX.COW, chicken: TILE_INDEX.CHICKEN }[kind]
   const scale = { sheep: 1.2, cow: 1.4, chicken: 1.1 }[kind]
@@ -382,6 +389,8 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
       return drawRockyOutcrop(ctx, x, y)
     case 'hut':
       return drawHut(ctx, x, y)
+    case 'questBoard':
+      return drawQuestBoard(ctx, x, y)
     case 'portal':
       return drawPortal(ctx, x, y)
     case 'shopkeeper':
