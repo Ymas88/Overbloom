@@ -1,6 +1,10 @@
 import { CROPS, RARITIES } from '../game/crops'
 import { SWORDS } from '../game/swords'
 
+// A fixed grid of every possible seed/sword, Minecraft/Stardew-style:
+// owned items show their icon and count, everything else sits there as
+// an empty slot — so the grid reads as "your whole collection," not
+// just a list of what you happen to be carrying.
 function InventoryPanel({
   currency,
   lootBoxes,
@@ -13,9 +17,6 @@ function InventoryPanel({
   onEquipSword,
   onClose,
 }) {
-  const ownedCrops = CROPS.filter((crop) => (seeds[crop.id] ?? 0) > 0)
-  const ownedSwordList = SWORDS.filter((sword) => (ownedSwords[sword.id] ?? 0) > 0)
-
   return (
     <div className="game-panel">
       <button className="panel-close" onClick={onClose} aria-label="Close">
@@ -32,21 +33,21 @@ function InventoryPanel({
       )}
 
       <h3>Seeds</h3>
-      {ownedCrops.length === 0 ? (
-        <p>No seeds yet — open a seedbox to get some.</p>
-      ) : (
-        <ul>
-          {ownedCrops.map((crop) => (
-            <li key={crop.id}>
-              <span className="seed-name">
-                <img src={`/sprites/crops/${crop.id}.png`} alt="" className="crop-icon" />
-                {crop.name} ({RARITIES[crop.rarity].label})
-              </span>
-              <span>{seeds[crop.id]}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="inventory-grid">
+        {CROPS.map((crop) => {
+          const count = seeds[crop.id] ?? 0
+          const label = `${crop.name} (${RARITIES[crop.rarity].label})`
+          if (count === 0) {
+            return <div key={crop.id} className="inventory-slot empty" title={`${label} — none yet`} />
+          }
+          return (
+            <div key={crop.id} className="inventory-slot" title={`${label} — ${count} owned`}>
+              <img src={`/sprites/crops/${crop.id}.png`} alt={label} className="inventory-slot-icon" />
+              <span className="inventory-slot-count">{count}</span>
+            </div>
+          )
+        })}
+      </div>
 
       <h3>Unopened swordboxes: {swordBoxes}</h3>
       {swordBoxes > 0 ? (
@@ -56,26 +57,25 @@ function InventoryPanel({
       )}
 
       <h3>Swords</h3>
-      {ownedSwordList.length === 0 ? (
-        <p>No swords yet — buy or win one at the Trading Post.</p>
-      ) : (
-        <ul>
-          {ownedSwordList.map((sword) => {
-            const equipped = equippedSwordId === sword.id
-            return (
-              <li key={sword.id}>
-                <span className="seed-name">
-                  <img src={`/sprites/swords/${sword.id}.png`} alt="" className="crop-icon" />
-                  {sword.name}
-                </span>
-                <button onClick={() => onEquipSword(equipped ? null : sword.id)}>
-                  {equipped ? 'Equipped' : 'Equip'}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      <div className="inventory-grid">
+        {SWORDS.map((sword) => {
+          const owned = (ownedSwords[sword.id] ?? 0) > 0
+          const equipped = equippedSwordId === sword.id
+          if (!owned) {
+            return <div key={sword.id} className="inventory-slot empty" title={`${sword.name} — not owned`} />
+          }
+          return (
+            <button
+              key={sword.id}
+              className={`inventory-slot${equipped ? ' equipped' : ''}`}
+              title={`${sword.name}${equipped ? ' — equipped' : ' — click to equip'}`}
+              onClick={() => onEquipSword(equipped ? null : sword.id)}
+            >
+              <img src={`/sprites/swords/${sword.id}.png`} alt={sword.name} className="inventory-slot-icon" />
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
