@@ -204,21 +204,25 @@ export const HARVEST_ANIM_DURATION = 0.45
 // The sword icons are drawn diagonally with the hilt near their
 // bottom-left corner — pivoting there (instead of the icon's top-left) is
 // what makes rotating it read as a swing instead of the icon spinning
-// around its own center.
+// around its own center. At rest the blade hangs down at the character's
+// side (tip near the ground, hilt gripped at hand height) rather than
+// sitting at the icon's own drawn angle, which read as pointing up and
+// away from the hand.
 const SWORD_SIZE = 15
 const SWORD_HILT_X = SWORD_SIZE * 0.22
 const SWORD_HILT_Y = SWORD_SIZE * 0.88
-const SWORD_REST_ANGLE = -0.3
+const SWORD_REST_ANGLE = 1.95
 
 // A swing is a handful of held poses shown back-to-back (like a sprite
 // sheet's per-frame delay), not one smooth tween — a continuous ease just
-// reads as the icon spinning in place instead of a snap. windup pulls the
-// blade back, strike snaps it forward past the target angle, and settle
-// eases the overshoot back to the resting pose.
+// reads as the icon spinning in place instead of a snap. Raise (windup)
+// lifts the blade up and back, chop (strike) swings it down through the
+// rest position like an actual slash, overshoot carries a bit past that,
+// and settle eases back up to the hanging rest pose.
 const SWING_FRAMES = [
-  { angle: -0.75, hold: 0.04 },
-  { angle: 1.0, hold: 0.07 },
-  { angle: 1.2, hold: 0.06 },
+  { angle: 0.6, hold: 0.05 },
+  { angle: 2.3, hold: 0.07 },
+  { angle: 2.55, hold: 0.05 },
   { angle: SWORD_REST_ANGLE, hold: 0.08 },
 ]
 export const SWORD_SWING_DURATION = SWING_FRAMES.reduce((sum, f) => sum + f.hold, 0)
@@ -289,9 +293,10 @@ function drawPlayer(
 
     // Pivoting at the hand (not the icon's corner) so the blade swings
     // like it's gripped there, in the same transformed space as the body
-    // so it mirrors and bobs/squashes along with it.
+    // so it mirrors and bobs/squashes along with it. Hand height is
+    // roughly hip-level, not up near the shoulder.
     ctx.save()
-    ctx.translate(TILE / 2 - 3, -TILE / 2 - 1)
+    ctx.translate(TILE / 2 - 2, -TILE / 2 + 3)
     ctx.rotate(angle)
     drawSwordIcon(ctx, equippedSwordId, -SWORD_HILT_X, -SWORD_HILT_Y, SWORD_SIZE)
     ctx.restore()
