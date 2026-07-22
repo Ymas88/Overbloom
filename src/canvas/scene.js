@@ -124,6 +124,14 @@ export function computeLayout(plotCount) {
       { x: FARM_PORTAL.x, y: FARM_PORTAL.y, to: { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y + 22 } },
       { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y, to: { x: FARM_PORTAL.x, y: FARM_PORTAL.y + 22 } },
     ],
+    caveDecor: [
+      { x: TILE * 16, y: FARM_HEIGHT + TILE * 2, kind: 'crystalLarge' },
+      { x: TILE * 25, y: FARM_HEIGHT + TILE * 6, kind: 'crystal' },
+      { x: TILE * 5, y: FARM_HEIGHT + TILE * 9, kind: 'crystal' },
+      { x: TILE * 30, y: FARM_HEIGHT + TILE * 12, kind: 'crystalLarge' },
+      { x: TILE * 14, y: FARM_HEIGHT + TILE * 13, kind: 'skull' },
+      { x: TILE * 24, y: FARM_HEIGHT + TILE * 9, kind: 'skull' },
+    ],
   }
 }
 
@@ -179,6 +187,10 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops
 
   for (const rock of layout.caveRocks) {
     drawSprite(ctx, 'rock', rock.x, rock.y, 0, { large: rock.large })
+  }
+
+  for (const decor of layout.caveDecor) {
+    drawSprite(ctx, 'caveDecor', decor.x, decor.y, 0, { kind: decor.kind })
   }
 
   for (const portal of layout.portals) {

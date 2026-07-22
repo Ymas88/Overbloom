@@ -2,6 +2,7 @@ import { palette } from './palette'
 import { drawTile, drawTileBlock, TILE_INDEX } from './tileset'
 import { drawTownTile, TOWN_TILE_INDEX } from './townTileset'
 import { drawDungeonTile, DUNGEON_TILE_INDEX } from './dungeonTileset'
+import { drawDungeon2Tile, DUNGEON2_TILE_INDEX } from './dungeon2Tileset'
 import { drawGrowthIcon, drawWiltedIcon } from './growthSprites'
 import { drawCropIcon } from './cropSprites'
 import { drawSwordIcon } from './swordSprites'
@@ -43,11 +44,12 @@ function hash(tx, ty) {
 }
 
 // Grass field built from the Tiny Town tileset for the farm zone, and a
-// stone cave floor built from Tiny Dungeon for the zone below it (reached
-// through the portal) — both mostly plain with occasional textured tiles
-// scattered in (deterministic, not random, so it doesn't shimmer between
-// renders). Only draws tiles within the camera's view (plus a 1-tile
-// margin), since the world is bigger than what's ever on screen at once.
+// detailed stone cave floor built from 0x72's DungeonTileset II for the
+// zone below it (reached through the portal) — both mostly plain with
+// occasional textured tiles scattered in (deterministic, not random, so
+// it doesn't shimmer between renders). Only draws tiles within the
+// camera's view (plus a 1-tile margin), since the world is bigger than
+// what's ever on screen at once.
 function drawGround(ctx, camera) {
   const startTx = Math.max(0, Math.floor(camera.x / TILE) - 1)
   const endTx = Math.min(WORLD_TILES_X, Math.ceil((camera.x + VIEWPORT_WIDTH) / TILE) + 1)
@@ -68,12 +70,14 @@ function drawGround(ctx, camera) {
         drawTownTile(ctx, index, tx * TILE, ty * TILE)
       } else {
         const index =
-          n > 0.92
-            ? DUNGEON_TILE_INDEX.CAVE_FLOOR_RUBBLE_2
-            : n > 0.8
-              ? DUNGEON_TILE_INDEX.CAVE_FLOOR_RUBBLE
-              : DUNGEON_TILE_INDEX.CAVE_FLOOR
-        drawDungeonTile(ctx, index, tx * TILE, ty * TILE)
+          n > 0.93
+            ? DUNGEON2_TILE_INDEX.FLOOR_CRACK_3
+            : n > 0.86
+              ? DUNGEON2_TILE_INDEX.FLOOR_CRACK_2
+              : n > 0.79
+                ? DUNGEON2_TILE_INDEX.FLOOR_CRACK_1
+                : DUNGEON2_TILE_INDEX.FLOOR
+        drawDungeon2Tile(ctx, index, tx * TILE, ty * TILE)
       }
     }
   }
@@ -117,6 +121,20 @@ function drawBush(ctx, x, y, { berry = false } = {}) {
 
 function drawRock(ctx, x, y, { large = false } = {}) {
   drawScaledTile(ctx, large ? TILE_INDEX.ROCKS : TILE_INDEX.ROCKS_SMALL, x, y, large ? 1.3 : 1.15)
+}
+
+// Small cave-floor decorations (crystal clusters, a skull) scattered
+// around the cave zone — flat props, drawn at native tile size rather
+// than scaled up like trees/bushes since they're meant to sit flush with
+// the floor instead of standing above it.
+function drawCaveDecor(ctx, x, y, { kind = 'crystal' } = {}) {
+  const index =
+    kind === 'skull'
+      ? DUNGEON2_TILE_INDEX.SKULL
+      : kind === 'crystalLarge'
+        ? DUNGEON2_TILE_INDEX.CRYSTAL_LARGE
+        : DUNGEON2_TILE_INDEX.CRYSTAL_SMALL
+  drawDungeon2Tile(ctx, index, x - TILE / 2, y - TILE / 2)
 }
 
 function drawAnimal(ctx, x, y, { kind = 'sheep' } = {}) {
@@ -371,6 +389,8 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
       return drawBush(ctx, x, y, opts)
     case 'rock':
       return drawRock(ctx, x, y, opts)
+    case 'caveDecor':
+      return drawCaveDecor(ctx, x, y, opts)
     case 'tree':
       return drawTree(ctx, x, y, opts)
     case 'animal':
