@@ -201,10 +201,6 @@ function drawPlot(ctx, x, y, size, { stage = 0, isWilting = false, cropId = null
 // Exported so FarmCanvas can time the animation clock the same way.
 export const HARVEST_ANIM_DURATION = 0.45
 
-// How long a sword swing plays for, in seconds. Exported so FarmCanvas can
-// time its click-triggered animation clock the same way.
-export const SWORD_SWING_DURATION = 0.25
-
 // The sword icons are drawn diagonally with the hilt near their
 // bottom-left corner — pivoting there (instead of the icon's top-left) is
 // what makes rotating it read as a swing instead of the icon spinning
@@ -213,8 +209,28 @@ const SWORD_SIZE = 15
 const SWORD_HILT_X = SWORD_SIZE * 0.22
 const SWORD_HILT_Y = SWORD_SIZE * 0.88
 const SWORD_REST_ANGLE = -0.3
-const SWORD_SWING_FROM = -1.1
-const SWORD_SWING_TO = 0.85
+
+// A swing is a handful of held poses shown back-to-back (like a sprite
+// sheet's per-frame delay), not one smooth tween — a continuous ease just
+// reads as the icon spinning in place instead of a snap. windup pulls the
+// blade back, strike snaps it forward past the target angle, and settle
+// eases the overshoot back to the resting pose.
+const SWING_FRAMES = [
+  { angle: -0.75, hold: 0.04 },
+  { angle: 1.0, hold: 0.07 },
+  { angle: 1.2, hold: 0.06 },
+  { angle: SWORD_REST_ANGLE, hold: 0.08 },
+]
+export const SWORD_SWING_DURATION = SWING_FRAMES.reduce((sum, f) => sum + f.hold, 0)
+
+function swingAngleAt(swingClock) {
+  let t = 0
+  for (const frame of SWING_FRAMES) {
+    t += frame.hold
+    if (swingClock < t) return frame.angle
+  }
+  return SWORD_REST_ANGLE
+}
 
 // Top-down character from the Tiny Farm tileset. x,y = feet position.
 // The pack only has one static pose (facing the camera), so left/right
@@ -269,9 +285,7 @@ function drawPlayer(
   drawTile(ctx, TILE_INDEX.CHARACTER, -TILE / 2, -TILE)
 
   if (equippedSwordId) {
-    const swingT = swinging ? Math.min(swingClock / SWORD_SWING_DURATION, 1) : 0
-    const eased = 1 - (1 - swingT) * (1 - swingT)
-    const angle = swinging ? SWORD_SWING_FROM + eased * (SWORD_SWING_TO - SWORD_SWING_FROM) : SWORD_REST_ANGLE
+    const angle = swinging ? swingAngleAt(swingClock) : SWORD_REST_ANGLE
 
     // Pivoting at the hand (not the icon's corner) so the blade swings
     // like it's gripped there, in the same transformed space as the body
