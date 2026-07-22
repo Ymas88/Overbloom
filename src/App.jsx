@@ -24,6 +24,7 @@ import ShopPanel from './components/ShopPanel'
 import LootRevealPanel from './components/LootRevealPanel'
 import MathQuizPanel from './components/MathQuizPanel'
 import QuestBoardPanel from './components/QuestBoardPanel'
+import CodexPanel from './components/CodexPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -64,6 +65,7 @@ function App() {
       if (e.key === 'Escape' && reveal) setReveal(null)
       else if (e.key === 'Escape' && interaction) setInteraction(null)
       if ((e.key === 'i' || e.key === 'I') && !interaction && !reveal) setInteraction({ type: 'inventory' })
+      if ((e.key === 'c' || e.key === 'C') && !interaction && !reveal) setInteraction({ type: 'codex' })
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
@@ -191,6 +193,8 @@ function App() {
       </div>
 
       {quiz && <MathQuizPanel question={quiz} onAnswer={handleQuizAnswer} />}
+
+      {interaction?.type === 'codex' && <CodexPanel onClose={closePanel} />}
 
       {interaction?.type === 'questBoard' && (
         <QuestBoardPanel
