@@ -25,6 +25,7 @@ import LootRevealPanel from './components/LootRevealPanel'
 import MathQuizPanel from './components/MathQuizPanel'
 import QuestBoardPanel from './components/QuestBoardPanel'
 import CodexPanel from './components/CodexPanel'
+import StatsPanel from './components/StatsPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -177,6 +178,9 @@ function App() {
         <div className="hud-health-bar" style={{ width: `${(health / MAX_HEALTH) * 100}%` }} />
         <span className="hud-health-label">{health}/{MAX_HEALTH} HP</span>
       </div>
+      <button className="hud-stats-button" onClick={() => setInteraction({ type: 'stats' })}>
+        Stats
+      </button>
 
       <div className="hud-hotbar">
         <div
@@ -195,6 +199,8 @@ function App() {
       {quiz && <MathQuizPanel question={quiz} onAnswer={handleQuizAnswer} />}
 
       {interaction?.type === 'codex' && <CodexPanel onClose={closePanel} />}
+
+      {interaction?.type === 'stats' && <StatsPanel sessions={sessions} onClose={closePanel} />}
 
       {interaction?.type === 'questBoard' && (
         <QuestBoardPanel

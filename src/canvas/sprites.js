@@ -138,11 +138,29 @@ function drawCaveDecor(ctx, x, y, { kind = 'crystal' } = {}) {
   drawDungeon2Tile(ctx, index, x - TILE / 2, y - TILE / 2)
 }
 
-// The quest board: a single Tiny Town signpost tile, scaled up slightly
-// so it reads clearly as a readable object. x,y = ground-level anchor,
-// bottom-center — same convention as drawScaledTile.
-function drawQuestBoard(ctx, x, y) {
-  drawScaledTile(ctx, TOWN_TILE_INDEX.SIGN_BOARD, x, y, 1.3)
+// A little quest hut: the same stone wall-and-door build as the trader
+// hut, just two tiles wide instead of three, with a wood-toned roof
+// (instead of the trader hut's stone-grey) and a signpost mounted out
+// front so it reads as its own building, not a copy of the trading
+// post. x,y = top-left corner of the roof.
+function drawQuestHut(ctx, x, y) {
+  const w = TILE * 2
+  const roofH = 18
+
+  px(ctx, x, y, w, roofH, palette.wood.mid)
+  px(ctx, x, y, w, 4, palette.wood.light)
+  px(ctx, x, y + roofH - 4, w, 4, palette.wood.dark)
+  px(ctx, x - 2, y - 2, w + 4, 2, palette.wood.outline)
+  px(ctx, x - 2, y, 2, roofH, palette.wood.outline)
+  px(ctx, x + w, y, 2, roofH, palette.wood.outline)
+
+  const wallY = y + roofH
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE, x, wallY)
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE, x + TILE, wallY)
+  drawTownTile(ctx, TOWN_TILE_INDEX.DOOR_STONE, x, wallY + TILE)
+  drawTownTile(ctx, TOWN_TILE_INDEX.WALL_STONE_BASE, x + TILE, wallY + TILE)
+
+  drawScaledTile(ctx, TOWN_TILE_INDEX.SIGN_BOARD, x + w + 6, wallY + TILE * 2 - 2, 1)
 }
 
 function drawAnimal(ctx, x, y, { kind = 'sheep' } = {}) {
@@ -390,7 +408,7 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
     case 'hut':
       return drawHut(ctx, x, y)
     case 'questBoard':
-      return drawQuestBoard(ctx, x, y)
+      return drawQuestHut(ctx, x, y)
     case 'portal':
       return drawPortal(ctx, x, y)
     case 'shopkeeper':

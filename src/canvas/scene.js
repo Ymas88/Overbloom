@@ -36,8 +36,13 @@ const HUT_H = 52 // 20px roof + two 16px wall rows
 const HUT_DOOR_CENTER = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H - 6 }
 const SHOPKEEPER_POS = { x: HUT_X + HUT_W / 2, y: HUT_Y + HUT_H + 8 }
 
-const QUEST_BOARD = { x: TILE * 9, y: TILE * 11 }
-const QUEST_BOARD_CENTER = { x: QUEST_BOARD.x, y: QUEST_BOARD.y - 4 }
+// The quest hut sits right next to the trading post, same roofline, just
+// two tiles wide instead of three.
+const QUEST_HUT_X = HUT_X + HUT_W + 10
+const QUEST_HUT_Y = HUT_Y
+const QUEST_HUT_W = TILE * 2
+const QUEST_HUT_H = 50 // 18px roof + two 16px wall rows
+const QUEST_HUT_DOOR_CENTER = { x: QUEST_HUT_X + TILE / 2, y: QUEST_HUT_Y + QUEST_HUT_H - 6 }
 
 const PLOT_SIZE = 56
 const PLOT_GAP = 10
@@ -69,7 +74,7 @@ export function computeLayout(plotCount) {
     { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H },
     { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H },
     { x: HUT_X, y: HUT_Y, width: HUT_W, height: HUT_H },
-    { x: QUEST_BOARD.x - 6, y: QUEST_BOARD.y - 14, width: 12, height: 14 },
+    { x: QUEST_HUT_X, y: QUEST_HUT_Y, width: QUEST_HUT_W, height: QUEST_HUT_H },
   ]
 
   return {
@@ -77,7 +82,7 @@ export function computeLayout(plotCount) {
     rock: { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H, center: ROCK_CENTER },
     hut: { x: HUT_X, y: HUT_Y, center: HUT_DOOR_CENTER },
     shopkeeper: SHOPKEEPER_POS,
-    questBoard: { x: QUEST_BOARD.x, y: QUEST_BOARD.y, center: QUEST_BOARD_CENTER },
+    questBoard: { x: QUEST_HUT_X, y: QUEST_HUT_Y, center: QUEST_HUT_DOOR_CENTER },
     plots,
     fence,
     solids,

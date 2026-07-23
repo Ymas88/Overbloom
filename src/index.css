@@ -114,6 +114,25 @@ button:focus-visible {
   transition: width 0.2s ease-out;
 }
 
+.hud-stats-button {
+  position: absolute;
+  top: 5.4rem;
+  right: 0.75rem;
+  width: 160px;
+  background: #e4bc7d;
+  border: 3px solid #7a4b26;
+  border-radius: 4px;
+  padding: 0.5em 0.7em;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 0.65em;
+  color: #3b2411;
+  cursor: pointer;
+}
+
+.hud-stats-button:hover {
+  background: #f2d6a5;
+}
+
 .hud-health-label {
   position: relative;
   z-index: 1;
