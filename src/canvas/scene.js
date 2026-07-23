@@ -113,14 +113,19 @@ export function computeLayout(plotCount, sessions = []) {
     solids.push({ x: FARM_PORTAL.x - 10, y: FARM_PORTAL.y - 20, width: 20, height: 24 })
   }
 
-  // Always-solid fence along the rest of the farm/cave line, so the portal
-  // gap is the only crossing point regardless of unlock state.
+  // The fence along the rest of the farm/cave line has a gap at the portal
+  // — but only once the portal is actually usable. While locked, the gap
+  // would just be a wider, unguarded hole to walk around the gate through,
+  // so the fence stays fully unbroken instead.
   const boundaryGapLeft = FARM_PORTAL.x - BOUNDARY_GAP / 2
   const boundaryGapRight = FARM_PORTAL.x + BOUNDARY_GAP / 2
-  solids.push(
-    { x: 0, y: BOUNDARY_Y - 12, width: boundaryGapLeft, height: 24 },
-    { x: boundaryGapRight, y: BOUNDARY_Y - 12, width: WORLD_WIDTH - boundaryGapRight, height: 24 }
-  )
+  const boundarySolids = unlocked
+    ? [
+        { x: 0, y: BOUNDARY_Y - 12, width: boundaryGapLeft, height: 24 },
+        { x: boundaryGapRight, y: BOUNDARY_Y - 12, width: WORLD_WIDTH - boundaryGapRight, height: 24 },
+      ]
+    : [{ x: 0, y: BOUNDARY_Y - 12, width: WORLD_WIDTH, height: 24 }]
+  solids.push(...boundarySolids)
 
   return {
     farmhouse: { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H, center: FARMHOUSE_CENTER },
@@ -179,10 +184,12 @@ export function computeLayout(plotCount, sessions = []) {
       { x: FARM_PORTAL.x, y: FARM_PORTAL.y, to: { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y + 22 }, locked: !unlocked },
       { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y, to: { x: FARM_PORTAL.x, y: FARM_PORTAL.y + 22 } },
     ],
-    boundaryFence: [
-      { x: 0, y: BOUNDARY_Y, length: boundaryGapLeft },
-      { x: boundaryGapRight, y: BOUNDARY_Y, length: WORLD_WIDTH - boundaryGapRight },
-    ],
+    boundaryFence: unlocked
+      ? [
+          { x: 0, y: BOUNDARY_Y, length: boundaryGapLeft },
+          { x: boundaryGapRight, y: BOUNDARY_Y, length: WORLD_WIDTH - boundaryGapRight },
+        ]
+      : [{ x: 0, y: BOUNDARY_Y, length: WORLD_WIDTH }],
     caveLocked: !unlocked,
     farmPortal: { x: FARM_PORTAL.x, y: FARM_PORTAL.y },
     caveDecor: [
