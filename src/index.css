@@ -95,6 +95,44 @@ button:focus-visible {
   color: #3b2411;
 }
 
+.biome-banner {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.6em 1.2em;
+  background: rgba(20, 16, 12, 0.55);
+  border-radius: 6px;
+  font-family: 'Press Start 2P', 'Courier New', ui-monospace, monospace;
+  font-size: 1.5em;
+  color: #f6e3bd;
+  text-shadow:
+    2px 2px 0 #2e2e2a,
+    -2px -2px 0 #2e2e2a,
+    2px -2px 0 #2e2e2a,
+    -2px 2px 0 #2e2e2a;
+  letter-spacing: 0.04em;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: biome-banner-fade 3s ease-in-out forwards;
+}
+
+@keyframes biome-banner-fade {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .hud-health {
   position: absolute;
   top: 3.2rem;

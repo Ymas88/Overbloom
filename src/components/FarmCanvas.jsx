@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react'
-import { drawScene, computeLayout, getInteractionTargets, findNearbyTarget, PORTAL_RANGE } from '../canvas/scene'
+import {
+  drawScene,
+  computeLayout,
+  getInteractionTargets,
+  findNearbyTarget,
+  PORTAL_RANGE,
+  getBiomeName,
+} from '../canvas/scene'
 import {
   drawSprite,
   VIEWPORT_WIDTH,
@@ -64,6 +71,7 @@ function FarmCanvas({
   equippedSwordId,
   onInteract,
   onSlimeHit,
+  onBiomeChange,
 }) {
   const canvasRef = useRef(null)
   const playerRef = useRef({ x: VIEWPORT_WIDTH / 2, y: VIEWPORT_HEIGHT - 32, facing: 'right' })
@@ -71,6 +79,8 @@ function FarmCanvas({
   const pausedRef = useRef(paused)
   const onInteractRef = useRef(onInteract)
   const onSlimeHitRef = useRef(onSlimeHit)
+  const onBiomeChangeRef = useRef(onBiomeChange)
+  const currentBiomeRef = useRef(getBiomeName(playerRef.current.y))
   const harvestingRef = useRef(false)
   const harvestClockRef = useRef(0)
   const swingingRef = useRef(false)
@@ -87,6 +97,10 @@ function FarmCanvas({
   useEffect(() => {
     onInteractRef.current = onInteract
   }, [onInteract])
+
+  useEffect(() => {
+    onBiomeChangeRef.current = onBiomeChange
+  }, [onBiomeChange])
 
   useEffect(() => {
     onSlimeHitRef.current = onSlimeHit
@@ -198,6 +212,12 @@ function FarmCanvas({
           player.x = portal.to.x
           player.y = portal.to.y
         }
+      }
+
+      const biome = getBiomeName(player.y)
+      if (biome !== currentBiomeRef.current) {
+        currentBiomeRef.current = biome
+        onBiomeChangeRef.current?.(biome)
       }
 
       // Slimes only exist in the cave zone — they don't spawn, move, or

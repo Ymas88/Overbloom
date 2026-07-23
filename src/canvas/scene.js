@@ -17,6 +17,13 @@ const FARM_PORTAL = { x: CORE_WIDTH + TILE * 6, y: FARM_HEIGHT - TILE * 2 }
 const CAVE_PORTAL = { x: TILE * 6, y: FARM_HEIGHT + TILE * 3 }
 export const PORTAL_RANGE = 11
 
+export const FARM_BIOME_NAME = 'Overbloom Farm'
+export const CAVE_BIOME_NAME = 'Crystal Hollow'
+
+export function getBiomeName(y) {
+  return y >= FARM_HEIGHT ? CAVE_BIOME_NAME : FARM_BIOME_NAME
+}
+
 const FARMHOUSE_X = TILE * 1
 const FARMHOUSE_Y = TILE * 1
 const FARMHOUSE_W = TILE * 3

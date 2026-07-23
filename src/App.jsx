@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getSubjects, addSubject } from './storage/subjects'
 import { getSessions } from './storage/sessions'
 import { getHarvests, setHarvestedAt } from './storage/harvests'
@@ -43,6 +43,8 @@ function App() {
   const [health, setHealthState] = useState(MAX_HEALTH)
   const [quiz, setQuiz] = useState(null)
   const [claimedQuests, setClaimedQuests] = useState([])
+  const [biomeBanner, setBiomeBanner] = useState(null)
+  const biomeBannerTimeoutRef = useRef(null)
   const [interaction, setInteraction] = useState(null) // null | {type:'farmhouse'} | {type:'plot', subjectId} | {type:'shop'} | {type:'inventory'}
 
   useEffect(() => {
@@ -92,6 +94,12 @@ function App() {
   function handleSlimeHit() {
     if (quiz) return
     setQuiz(generateQuestion())
+  }
+
+  function handleBiomeChange(name) {
+    setBiomeBanner(name)
+    if (biomeBannerTimeoutRef.current) clearTimeout(biomeBannerTimeoutRef.current)
+    biomeBannerTimeoutRef.current = setTimeout(() => setBiomeBanner(null), 3000)
   }
 
   function handleQuizAnswer(correct) {
@@ -171,7 +179,14 @@ function App() {
         equippedSwordId={equippedSwordId}
         onInteract={setInteraction}
         onSlimeHit={handleSlimeHit}
+        onBiomeChange={handleBiomeChange}
       />
+
+      {biomeBanner && (
+        <div className="biome-banner" key={biomeBanner}>
+          {biomeBanner}
+        </div>
+      )}
 
       <div className="hud-coins">{currency} coins</div>
       <div className="hud-health">
