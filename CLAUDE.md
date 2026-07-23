@@ -13,7 +13,7 @@ Kieran is 16 and does not know how to code. Claude implements everything; Kieran
 overbloom (working title) is a gamified study timer that grows a pixel-art farm (Stardew Valley style) from logged focus time. Each study subject is its own plot; crops grow from logged minutes and wilt with neglect. A future companion Chrome extension will block distracting sites during study sessions.
 
 ## Current status
-V1 stores everything in `localStorage` — no accounts, no backend. The farm is a top-down, walkable pixel-art scene (Kenney CC0 "Tiny Farm"/"Tiny Town" tile packs) bigger than the screen, with a scrolling camera that follows the player and collision against the farmhouse/rocky outcrop. Walk up to the farmhouse and press E to add/manage subjects; walk up to a subject's plot and press E to run its study timer. Each plot renders as a bordered pen of 9 crop icons whose growth stage reflects real logged study time, and wilts after 3 days without a session.
+V1 stores everything in `localStorage` — no accounts, no backend. The farm is a top-down, walkable pixel-art scene (Kenney CC0 "Tiny Farm"/"Tiny Town" tile packs) bigger than the screen, with a scrolling camera that follows the player and collision against the farmhouse/rocky outcrop. Walk up to the farmhouse and press E to add/manage subjects; walk up to a subject's plot and press E to run its study timer. Each plot renders as a bordered pen of 25 crop icons (5x5) whose growth stage reflects real logged study time, and wilts after 3 days without a session. Plots are laid out in a grid that only grows sideways once it's tall enough to reach the cave's edge, so they always stay inside Overbloom Farm.
 
 ## Folder structure
 - `src/components/` — reusable UI pieces (panels, forms, the canvas host)

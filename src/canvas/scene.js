@@ -51,11 +51,23 @@ const QUEST_HUT_W = TILE * 2
 const QUEST_HUT_H = 50 // 18px roof + two 16px wall rows
 const QUEST_HUT_DOOR_CENTER = { x: QUEST_HUT_X + TILE / 2, y: QUEST_HUT_Y + QUEST_HUT_H - 6 }
 
-const PLOT_SIZE = 56
+const PLOT_SIZE = 90
 const PLOT_GAP = 10
 const PLOTS_ORIGIN_X = TILE * 6
 const PLOTS_ORIGIN_Y = TILE * 3
 const PLOTS_PER_ROW = 3
+
+// The biome only splits on y (see getBiomeName), so the plot grid staying
+// inside Overbloom Farm — never drifting down into Crystal Hollow — just
+// means capping how many rows it's allowed to grow to. This is how many
+// rows fit between the plots' top edge and the farm/cave line, with a bit
+// of breathing room; once a subject count needs more rows than this,
+// computeLayout adds columns sideways instead of another row.
+const GARDEN_MARGIN_BOTTOM = 20
+const MAX_PLOT_ROWS = Math.max(
+  1,
+  Math.floor((FARM_HEIGHT - PLOTS_ORIGIN_Y - GARDEN_MARGIN_BOTTOM + PLOT_GAP) / (PLOT_SIZE + PLOT_GAP))
+)
 
 const INTERACT_RANGE = 26
 
@@ -63,16 +75,18 @@ const INTERACT_RANGE = 26
 // top-down field. Shared by the renderer and by the movement/interaction
 // logic that needs to know what the player is standing near.
 export function computeLayout(plotCount) {
+  const columns = Math.max(PLOTS_PER_ROW, Math.ceil(plotCount / MAX_PLOT_ROWS))
+
   const plots = []
   for (let i = 0; i < plotCount; i++) {
-    const col = i % PLOTS_PER_ROW
-    const row = Math.floor(i / PLOTS_PER_ROW)
+    const col = i % columns
+    const row = Math.floor(i / columns)
     const x = PLOTS_ORIGIN_X + col * (PLOT_SIZE + PLOT_GAP)
     const y = PLOTS_ORIGIN_Y + row * (PLOT_SIZE + PLOT_GAP)
     plots.push({ x, y, size: PLOT_SIZE })
   }
 
-  const rowWidth = Math.min(plotCount, PLOTS_PER_ROW) * (PLOT_SIZE + PLOT_GAP) - PLOT_GAP
+  const rowWidth = Math.min(plotCount, columns) * (PLOT_SIZE + PLOT_GAP) - PLOT_GAP
   const fence = plotCount > 0 ? { x: PLOTS_ORIGIN_X - 6, y: PLOTS_ORIGIN_Y - 4, length: rowWidth + 12 } : null
 
   // Full building footprints (not just the walkable wall portion) so the

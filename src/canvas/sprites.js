@@ -227,10 +227,10 @@ function drawPortal(ctx, x, y) {
   drawScaledTile(ctx, DUNGEON_TILE_INDEX.PORTAL_ARCH, x, y, 1.6)
 }
 
-// A subject's plot: a fenced-in growing bed with a 3x3 grid of crop icons
+// A subject's plot: a fenced-in growing bed with a 5x5 grid of crop icons
 // (all sharing the same growth stage), instead of a single big sprite —
 // reads as a small planted field rather than one giant flower.
-const PLOT_GRID = 3
+const PLOT_GRID = 5
 const PLOT_BORDER = 4
 const PLOT_ICON_GAP = 3
 
