@@ -88,11 +88,16 @@ function FarmCanvas({
   const equippedSwordIdRef = useRef(equippedSwordId)
   const slimesRef = useRef([])
   const spawnClockRef = useRef(0)
+  const sessionsRef = useRef(sessions)
 
   useEffect(() => {
     pausedRef.current = paused
     if (paused) keysRef.current.clear()
   }, [paused])
+
+  useEffect(() => {
+    sessionsRef.current = sessions
+  }, [sessions])
 
   useEffect(() => {
     onInteractRef.current = onInteract
@@ -123,7 +128,7 @@ function FarmCanvas({
       if (pausedRef.current) return
       if (MOVE_KEYS[e.key]) keysRef.current.add(e.key)
       if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
-        const layout = computeLayout(subjects.length)
+        const layout = computeLayout(subjects.length, sessionsRef.current)
         const targets = getInteractionTargets(layout, subjects)
         const nearby = findNearbyTarget(targets, playerRef.current.x, playerRef.current.y)
         if (nearby) onInteractRef.current?.(nearby)
@@ -167,7 +172,7 @@ function FarmCanvas({
       const dt = Math.min((now - lastTime) / 1000, 0.05)
       lastTime = now
 
-      const layout = computeLayout(subjects.length)
+      const layout = computeLayout(subjects.length, sessions)
       const targets = getInteractionTargets(layout, subjects)
       const player = playerRef.current
 
@@ -206,7 +211,7 @@ function FarmCanvas({
 
       if (!pausedRef.current) {
         const portal = layout.portals.find(
-          (p) => Math.hypot(p.x - player.x, p.y - player.y) < PORTAL_RANGE
+          (p) => !p.locked && Math.hypot(p.x - player.x, p.y - player.y) < PORTAL_RANGE
         )
         if (portal) {
           player.x = portal.to.x

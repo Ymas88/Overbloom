@@ -227,6 +227,13 @@ function drawPortal(ctx, x, y) {
   drawScaledTile(ctx, DUNGEON_TILE_INDEX.PORTAL_ARCH, x, y, 1.6)
 }
 
+// A crossed wood-and-metal gate, from the same Tiny Dungeon sheet as the
+// portal arch, drawn over it while the cave is locked so the block reads
+// as part of the same structure rather than a random obstacle.
+function drawCaveBarrier(ctx, x, y) {
+  drawScaledTile(ctx, DUNGEON_TILE_INDEX.BARRIER_GATE, x, y, 1.6)
+}
+
 // A subject's plot: a fenced-in growing bed with a 5x5 grid of crop icons
 // (all sharing the same growth stage), instead of a single big sprite —
 // reads as a small planted field rather than one giant flower.
@@ -411,6 +418,8 @@ export function drawSprite(ctx, name, x, y, _frame = 0, opts = {}) {
       return drawQuestHut(ctx, x, y)
     case 'portal':
       return drawPortal(ctx, x, y)
+    case 'caveBarrier':
+      return drawCaveBarrier(ctx, x, y)
     case 'shopkeeper':
       return drawShopkeeper(ctx, x, y)
     case 'bush':

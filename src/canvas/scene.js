@@ -1,5 +1,6 @@
 import { drawSprite, TILE, WORLD_WIDTH, WORLD_HEIGHT, FARM_HEIGHT } from './sprites'
 import { getGrowthStage } from '../game/growth'
+import { isCaveUnlocked } from '../game/unlocks'
 
 // The original farm layout was designed for a 20x14-tile viewport. The
 // world is now bigger than that (the camera scrolls), but the farmhouse,
@@ -74,7 +75,8 @@ const INTERACT_RANGE = 26
 // Pure geometry (not game logic): where each scene element sits, in the
 // top-down field. Shared by the renderer and by the movement/interaction
 // logic that needs to know what the player is standing near.
-export function computeLayout(plotCount) {
+export function computeLayout(plotCount, sessions = []) {
+  const unlocked = isCaveUnlocked(sessions)
   const columns = Math.max(PLOTS_PER_ROW, Math.ceil(plotCount / MAX_PLOT_ROWS))
 
   const plots = []
@@ -97,6 +99,13 @@ export function computeLayout(plotCount) {
     { x: HUT_X, y: HUT_Y, width: HUT_W, height: HUT_H },
     { x: QUEST_HUT_X, y: QUEST_HUT_Y, width: QUEST_HUT_W, height: QUEST_HUT_H },
   ]
+
+  // Blocks the farm-side portal tile until enough study time is logged, so
+  // the "barrier" is a real wall, not just a visual — walking into it stops
+  // like any other solid instead of quietly failing to teleport.
+  if (!unlocked) {
+    solids.push({ x: FARM_PORTAL.x - 10, y: FARM_PORTAL.y - 20, width: 20, height: 24 })
+  }
 
   return {
     farmhouse: { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H, center: FARMHOUSE_CENTER },
@@ -152,9 +161,11 @@ export function computeLayout(plotCount) {
       { x: WORLD_WIDTH - TILE * 4, y: WORLD_HEIGHT - TILE * 3 },
     ],
     portals: [
-      { x: FARM_PORTAL.x, y: FARM_PORTAL.y, to: { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y + 22 } },
+      { x: FARM_PORTAL.x, y: FARM_PORTAL.y, to: { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y + 22 }, locked: !unlocked },
       { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y, to: { x: FARM_PORTAL.x, y: FARM_PORTAL.y + 22 } },
     ],
+    caveLocked: !unlocked,
+    farmPortal: { x: FARM_PORTAL.x, y: FARM_PORTAL.y },
     caveDecor: [
       { x: TILE * 16, y: FARM_HEIGHT + TILE * 2, kind: 'crystalLarge' },
       { x: TILE * 25, y: FARM_HEIGHT + TILE * 6, kind: 'crystal' },
@@ -181,6 +192,10 @@ export function getInteractionTargets(layout, subjects) {
     { type: 'questBoard', ...layout.questBoard.center },
   ]
 
+  if (layout.caveLocked) {
+    targets.push({ type: 'caveLock', ...layout.farmPortal })
+  }
+
   layout.plots.forEach((plot, i) => {
     const subject = subjects[i]
     if (!subject) return
@@ -202,7 +217,7 @@ export function findNearbyTarget(targets, playerX, playerY) {
 }
 
 export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops = {}, camera }) {
-  const layout = computeLayout(subjects.length)
+  const layout = computeLayout(subjects.length, sessions)
 
   drawSprite(ctx, 'ground', 0, 0, 0, { camera })
 
@@ -233,6 +248,10 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops
 
   for (const portal of layout.portals) {
     drawSprite(ctx, 'portal', portal.x, portal.y)
+  }
+
+  if (layout.caveLocked) {
+    drawSprite(ctx, 'caveBarrier', layout.farmPortal.x, layout.farmPortal.y)
   }
 
   drawSprite(ctx, 'rockyOutcrop', layout.rock.x, layout.rock.y)

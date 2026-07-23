@@ -26,6 +26,7 @@ import MathQuizPanel from './components/MathQuizPanel'
 import QuestBoardPanel from './components/QuestBoardPanel'
 import CodexPanel from './components/CodexPanel'
 import StatsPanel from './components/StatsPanel'
+import CaveLockPanel from './components/CaveLockPanel'
 
 function App() {
   const [subjects, setSubjects] = useState([])
@@ -216,6 +217,8 @@ function App() {
       {interaction?.type === 'codex' && <CodexPanel onClose={closePanel} />}
 
       {interaction?.type === 'stats' && <StatsPanel sessions={sessions} onClose={closePanel} />}
+
+      {interaction?.type === 'caveLock' && <CaveLockPanel sessions={sessions} onClose={closePanel} />}
 
       {interaction?.type === 'questBoard' && (
         <QuestBoardPanel
