@@ -2,6 +2,7 @@ import SubjectForm from './SubjectForm'
 import SubjectList from './SubjectList'
 import SessionList from './SessionList'
 import DevSessionForm from './DevSessionForm'
+import DevTotalsForm from './DevTotalsForm'
 
 function FarmhousePanel({
   subjects,
@@ -12,6 +13,7 @@ function FarmhousePanel({
   onAddSubject,
   onAssignCrop,
   onSessionSaved,
+  onTotalsChanged,
   onClose,
 }) {
   return (
@@ -33,11 +35,15 @@ function FarmhousePanel({
       />
 
       <h3>Past sessions</h3>
-      <SessionList sessions={sessions} subjects={subjects} />
+      <SessionList sessions={sessions.filter((s) => s.subjectId !== null)} subjects={subjects} />
 
       <h3>Debug: add test session</h3>
       <p>For testing growth stages without waiting real days.</p>
       <DevSessionForm subjects={subjects} onSessionAdded={onSessionSaved} />
+
+      <h3>Debug: set coins &amp; total study minutes</h3>
+      <p>For testing shop prices or the Crystal Hollows unlock without earning them for real.</p>
+      <DevTotalsForm currency={currency} sessions={sessions} onChanged={onTotalsChanged} />
     </div>
   )
 }

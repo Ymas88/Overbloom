@@ -10,3 +10,8 @@ export function addCurrency(amount) {
   localStorage.setItem(CURRENCY_KEY, String(updated))
   return updated
 }
+
+export function setCurrency(amount) {
+  localStorage.setItem(CURRENCY_KEY, String(amount))
+  return amount
+}

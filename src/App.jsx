@@ -83,6 +83,11 @@ function App() {
     setSessions(getSessions())
   }
 
+  function handleDevTotalsChanged() {
+    setCurrency(getCurrency())
+    setSessions(getSessions())
+  }
+
   function handleHarvest(subjectId) {
     const crop = getCropOrDefault(subjectCrops[subjectId] ?? null)
     const reward = RARITIES[crop.rarity].reward
@@ -275,6 +280,7 @@ function App() {
           onAddSubject={handleAddSubject}
           onAssignCrop={handleAssignCrop}
           onSessionSaved={handleSessionSaved}
+          onTotalsChanged={handleDevTotalsChanged}
           onClose={closePanel}
         />
       )}
