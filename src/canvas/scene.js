@@ -18,6 +18,12 @@ const FARM_PORTAL = { x: CORE_WIDTH + TILE * 6, y: FARM_HEIGHT - TILE * 2 }
 const CAVE_PORTAL = { x: TILE * 6, y: FARM_HEIGHT + TILE * 3 }
 export const PORTAL_RANGE = 11
 
+// A fence runs the full width of the farm/cave line, with a gap only at
+// the portal — so the portal (and whatever gates it, e.g. the study-time
+// lock) is structurally the only way to cross, not just the intended way.
+const BOUNDARY_GAP = 40
+const BOUNDARY_Y = FARM_HEIGHT
+
 export const FARM_BIOME_NAME = 'Overbloom Farm'
 export const CAVE_BIOME_NAME = 'Crystal Hollow'
 
@@ -107,6 +113,15 @@ export function computeLayout(plotCount, sessions = []) {
     solids.push({ x: FARM_PORTAL.x - 10, y: FARM_PORTAL.y - 20, width: 20, height: 24 })
   }
 
+  // Always-solid fence along the rest of the farm/cave line, so the portal
+  // gap is the only crossing point regardless of unlock state.
+  const boundaryGapLeft = FARM_PORTAL.x - BOUNDARY_GAP / 2
+  const boundaryGapRight = FARM_PORTAL.x + BOUNDARY_GAP / 2
+  solids.push(
+    { x: 0, y: BOUNDARY_Y - 12, width: boundaryGapLeft, height: 24 },
+    { x: boundaryGapRight, y: BOUNDARY_Y - 12, width: WORLD_WIDTH - boundaryGapRight, height: 24 }
+  )
+
   return {
     farmhouse: { x: FARMHOUSE_X, y: FARMHOUSE_Y, width: FARMHOUSE_W, height: FARMHOUSE_H, center: FARMHOUSE_CENTER },
     rock: { x: ROCK_X, y: ROCK_Y, width: ROCK_W, height: ROCK_H, center: ROCK_CENTER },
@@ -163,6 +178,10 @@ export function computeLayout(plotCount, sessions = []) {
     portals: [
       { x: FARM_PORTAL.x, y: FARM_PORTAL.y, to: { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y + 22 }, locked: !unlocked },
       { x: CAVE_PORTAL.x, y: CAVE_PORTAL.y, to: { x: FARM_PORTAL.x, y: FARM_PORTAL.y + 22 } },
+    ],
+    boundaryFence: [
+      { x: 0, y: BOUNDARY_Y, length: boundaryGapLeft },
+      { x: boundaryGapRight, y: BOUNDARY_Y, length: WORLD_WIDTH - boundaryGapRight },
     ],
     caveLocked: !unlocked,
     farmPortal: { x: FARM_PORTAL.x, y: FARM_PORTAL.y },
@@ -223,6 +242,10 @@ export function drawScene(ctx, { subjects, sessions, harvests = {}, subjectCrops
 
   if (layout.fence) {
     drawSprite(ctx, 'fenceLine', layout.fence.x, layout.fence.y, 0, { length: layout.fence.length })
+  }
+
+  for (const segment of layout.boundaryFence) {
+    drawSprite(ctx, 'fenceLine', segment.x, segment.y, 0, { length: segment.length })
   }
 
   layout.plots.forEach((plot, i) => {
